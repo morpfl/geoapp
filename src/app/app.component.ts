@@ -14,12 +14,19 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 export class AppComponent {
   title = 'geo-app';
   CM_ATTR = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+  wmsVEBaseUrl = 'https://geodienste.sachsen.de/wms_geosn_verwaltungseinheiten/guest?';
   map: L.Map;
   zoomingIsAllowed = true;
 
   ngOnInit(){
-    this.map = L.map('map').setView([51.03, 13.75], 9);
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: this.CM_ATTR}).addTo(this.map);
+    this.map = L.map('map').setView([50.8970, 14.0662], 10);
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: this.CM_ATTR, opacity: 1}).addTo(this.map);
+
+    L.tileLayer.wms(this.wmsVEBaseUrl, {
+      layers: 'Landkreis_Kreisfreie_Stadt',
+      opacity: 0.2,
+    }).addTo(this.map);
+
   }
 
   popUpTest(){

@@ -79,7 +79,8 @@
                   Weitere
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p>This is the primary content of the panel.</p>
+              <mat-checkbox (change) = "toggleOberzentrenLayer($event.checked)">Oberzentren</mat-checkbox><br>
+              <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
             </mat-expansion-panel>
           </mat-tab>
           <mat-tab label="Erklärung">Erklärungen zur Berechnung und Darstellung.</mat-tab>

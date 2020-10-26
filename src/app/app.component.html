@@ -20,6 +20,9 @@
                   <mat-panel-title>
                     Raster
                   </mat-panel-title>
+                  <mat-panel-description>
+                    rasterbasierte Darstellung
+                  </mat-panel-description>
                 </mat-expansion-panel-header>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -51,8 +54,11 @@
               <mat-expansion-panel hideToggle>
                 <mat-expansion-panel-header>
                   <mat-panel-title>
-                    Verwaltungsebene
+                    Score
                   </mat-panel-title>
+                  <mat-panel-description>
+                    score-basierte Darstellung
+                  </mat-panel-description>
                 </mat-expansion-panel-header>
                 <p>This is the primary content of the panel.</p>
               </mat-expansion-panel>
@@ -63,7 +69,7 @@
                   Verwaltungsgrenzen
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p>This is the primary content of the panel.</p>
+              <mat-checkbox checked = "true" (change) = "toggleGemeindenLayer($event.checked)">Gemeindegrenzen</mat-checkbox><br>
             </mat-expansion-panel>
             <mat-expansion-panel hideToggle>
               <mat-expansion-panel-header>
@@ -71,7 +77,8 @@
                   Zentrale Orte
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p>This is the primary content of the panel.</p>
+              <mat-checkbox (change) = "toggleOberzentrenLayer($event.checked)">Oberzentren</mat-checkbox><br>
+              <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
             </mat-expansion-panel>
             <mat-expansion-panel hideToggle>
               <mat-expansion-panel-header>
@@ -79,8 +86,7 @@
                   Weitere
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <mat-checkbox (change) = "toggleOberzentrenLayer($event.checked)">Oberzentren</mat-checkbox><br>
-              <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
+              <p>This is the primary content of the panel</p>
             </mat-expansion-panel>
           </mat-tab>
           <mat-tab label="Erklärung">Erklärungen zur Berechnung und Darstellung.</mat-tab>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import 'proj4leaflet';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -14,14 +14,15 @@ import 'proj4';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'geo-app';
   CM_ATTR = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
   wmsVEBaseUrl = 'https://geodienste.sachsen.de/wms_geosn_verwaltungseinheiten/guest?';
   map: L.Map;
-  //Class-Variables for Layers
+  // Class-Variables for Layers
   oberzentrenLayer: L.Proj.GeoJSON;
   mittelzentrenLayer: L.Proj.GeoJSON;
+  gemeindenLayer: L.Proj.GeoJSON;
 
 
 
@@ -39,32 +40,32 @@ export class AppComponent {
     const mittelzentrumMarker = {
       radius: 10,
       fillOpacity: 0.85,
-      color: "green"
+      color: 'green'
     };
 
     const oberzentrumMarker = {
       radius: 20,
       fillOpacity: 0.85,
-      color: "green"
-    }
+      color: 'green'
+    };
 
     this.map = L.map('map').setView([50.8970, 14.0662], 10);
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: this.CM_ATTR}).addTo(this.map);
-    const gemeindenLayer = L.Proj.geoJson(gemeinden).addTo(this.map);
+    this.gemeindenLayer = L.Proj.geoJson(gemeinden, {
+      onEachFeature: this.showPopupContent
+    });
     this.mittelzentrenLayer = L.Proj.geoJson(mittelzentren, {
-      pointToLayer: function(feature, latlng){
+      pointToLayer(feature, latlng): L.CircleMarker{
         return new L.CircleMarker(latlng, mittelzentrumMarker);
       },
     });
     this.oberzentrenLayer = L.Proj.geoJson(oberzentren, {
-      pointToLayer: function(feature, latlng){
+      pointToLayer(feature, latlng): L.CircleMarker{
         return new L.CircleMarker(latlng, oberzentrumMarker);
       },
     });
 
-    this.map.addLayer(gemeindenLayer);
-
-
+    this.map.addLayer(this.gemeindenLayer);
 
     // L.tileLayer.wms(this.wmsVEBaseUrl, {
     //   layers: 'Landkreis_Kreisfreie_Stadt',
@@ -73,12 +74,19 @@ export class AppComponent {
 
   }
 
+  showPopupContent(feature, layer): void{
+    if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
+      const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
+      layer.bindPopup(textToDisplay);
+    }
+  }
+
   toggleOberzentrenLayer(checked: boolean): void{
     if (checked) {
       this.map.addLayer(this.oberzentrenLayer);
     }
     else{
-      this.map.removeLayer(this.oberzentrenLayer)
+      this.map.removeLayer(this.oberzentrenLayer);
     }
   }
 
@@ -88,6 +96,15 @@ export class AppComponent {
     }
     else{
       this.map.removeLayer(this.mittelzentrenLayer);
+    }
+  }
+
+  toggleGemeindenLayer(checked: boolean): void{
+    if (checked) {
+      this.map.addLayer(this.gemeindenLayer);
+    }
+    else{
+      this.map.removeLayer(this.gemeindenLayer);
     }
   }
 

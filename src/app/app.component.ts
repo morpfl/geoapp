@@ -7,6 +7,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { oberzentren, mittelzentren, gemeinden } from './data/oberzentren';
 import 'proj4';
+import { Proj } from 'proj4';
 
 
 @Component({
@@ -51,8 +52,28 @@ export class AppComponent implements OnInit {
 
     this.map = L.map('map').setView([50.8970, 14.0662], 10);
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: this.CM_ATTR}).addTo(this.map);
+    const that = this;
+    let prevLayer = null;
     this.gemeindenLayer = L.Proj.geoJson(gemeinden, {
-      onEachFeature: this.showPopupContent
+      onEachFeature: (feature: any, layer: any) => {
+        if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
+          const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
+          layer.bindPopup(textToDisplay);
+          layer.on('click', e => {
+            console.log(e.sourceTarget);
+            if (prevLayer !== null){
+              prevLayer.setStyle({
+                color: '#3388ff',
+              });
+            }
+            prevLayer = layer;
+            layer.setStyle({
+              color: '#a87732',
+            });
+            that.map.fitBounds(e.sourceTarget._bounds, {maxZoom: 12});
+          });
+        }
+      }
     });
     this.mittelzentrenLayer = L.Proj.geoJson(mittelzentren, {
       pointToLayer(feature, latlng): L.CircleMarker{
@@ -67,19 +88,8 @@ export class AppComponent implements OnInit {
 
     this.map.addLayer(this.gemeindenLayer);
 
-    // L.tileLayer.wms(this.wmsVEBaseUrl, {
-    //   layers: 'Landkreis_Kreisfreie_Stadt',
-    //   opacity: 0.2,
-    // }).addTo(this.map);
-
   }
 
-  showPopupContent(feature, layer): void{
-    if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
-      const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
-      layer.bindPopup(textToDisplay);
-    }
-  }
 
   toggleOberzentrenLayer(checked: boolean): void{
     if (checked) {

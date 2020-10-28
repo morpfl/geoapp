@@ -111,7 +111,7 @@
             <mat-form-field>
               <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
             </mat-form-field>
-            <button mat-button (click)="calculateScore(gitterPkwMittelzentren)">Score berechnen</button>
+            <button mat-flat-button color="primary" (click)="calculateScore(gitterPkwMittelzentren)">Score berechnen</button>
           </form>
         </div>
         <div *ngIf="!gitterLayerIsActive">

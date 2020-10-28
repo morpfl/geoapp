@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field'; 
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle'; 
@@ -17,6 +18,7 @@ import {MatInputModule} from '@angular/material/input';
   ],
   imports: [
     ReactiveFormsModule,
+    MatButtonModule,
     BrowserModule,
     MatFormFieldModule,
     MatInputModule,

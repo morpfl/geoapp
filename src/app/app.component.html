@@ -18,10 +18,10 @@
               <mat-expansion-panel hideToggle>
                 <mat-expansion-panel-header>
                   <mat-panel-title>
-                    Raster
+                    Gitter
                   </mat-panel-title>
                   <mat-panel-description>
-                    rasterbasierte Darstellung
+                    gitterbasierte Darstellung
                   </mat-panel-description>
                 </mat-expansion-panel-header>
                 <mat-expansion-panel hideToggle>
@@ -40,7 +40,7 @@
                       motorisierter Individualverkehr
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                  <p>This is the primary content of the panel.</p>
+                  <mat-checkbox checked = "true" (change) = "toggle500mPkwMittelzentrenGitter($event.checked)">Mittelzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -79,6 +79,7 @@
               </mat-expansion-panel-header>
               <mat-checkbox (change) = "toggleOberzentrenLayer($event.checked)">Oberzentren</mat-checkbox><br>
               <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
+              <mat-checkbox (change) = "toggleGrundzentrenLayer($event.checked)">Grundzentren</mat-checkbox><br>
             </mat-expansion-panel>
             <mat-expansion-panel hideToggle>
               <mat-expansion-panel-header>
@@ -89,15 +90,33 @@
               <p>This is the primary content of the panel</p>
             </mat-expansion-panel>
           </mat-tab>
-          <mat-tab label="Erklärung">Erklärungen zur Berechnung und Darstellung.</mat-tab>
+          <mat-tab label="Erklärung">
+            <h4 mat-h4>Ampel-Score</h4>
+            <p align = "justify">Der Ampel-Score wird auf Gemeinde-Ebene berechnet und gibt an, wie gut die nächsten Zentren mit der angegebenen Mobilitätsart erreichbar sind.</p>
+            <p align = "justify">Die Grenzen für die Ampelstufen können konfiguriert werden, in dem jeweils eine Dezimalzahl zwischen 0 und 1 gewählt wird. Diese gibt das Verhältnis von bewohnten Gebieten mit ausreichender Erreichbarkeit zu allen bewohnten Gebieten der Gemeinde an.</p>
+            <p>Eine Erreichbarkeit gilt als ausreichend, wenn sie die amtlich festgelegte Höchstdauer nicht überschreitet.</p>
+          </mat-tab>
           <mat-tab label="Tabelle"> Content 3 </mat-tab>
         </mat-tab-group>      
       </div>
       <div class="filter-element">
         <h3 mat-h3>Kartenoptionen</h3>
-        <p>
-          <button mat-button (click)="popUpTest()">Test-Pop-Up anzeigen</button>
-        </p>
+        <h4 mat-h4>Ampel-Score</h4>
+        <div *ngIf="gitterLayerIsActive">
+          <p>Der Ampel-Score wird für das aktuell selektierte Erreichbarkeitslayer angezeigt.</p>
+          <form [formGroup] = "ampFG">
+            <mat-form-field>
+              <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
+            </mat-form-field>
+            <button mat-button (click)="calculateScore(gitterPkwMittelzentren)">Score berechnen</button>
+          </form>
+        </div>
+        <div *ngIf="!gitterLayerIsActive">
+          <p>Für den Ampel-Score muss ein Erreichbarkeitslayer ausgewählt werden.</p>
+        </div>
       </div>
       <div class="filter-element">
         <h3 mat-h3>Legende</h3>

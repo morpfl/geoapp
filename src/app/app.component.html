@@ -40,7 +40,7 @@
                       motorisierter Individualverkehr
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                  <mat-checkbox checked = "true" (change) = "toggle500mPkwMittelzentrenGitter($event.checked)">Mittelzentrum</mat-checkbox><br>
+                  <mat-checkbox (change) = "toggle500mPkwMittelzentrenGitter($event.checked)">Mittelzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -91,32 +91,48 @@
             </mat-expansion-panel>
           </mat-tab>
           <mat-tab label="Erklärung">
-            <h4 mat-h4>Ampel-Score</h4>
-            <p align = "justify">Der Ampel-Score wird auf Gemeinde-Ebene berechnet und gibt an, wie gut die nächsten Zentren mit der angegebenen Mobilitätsart erreichbar sind.</p>
-            <p align = "justify">Die Grenzen für die Ampelstufen können konfiguriert werden, in dem jeweils eine Dezimalzahl zwischen 0 und 1 gewählt wird. Diese gibt das Verhältnis von bewohnten Gebieten mit ausreichender Erreichbarkeit zu allen bewohnten Gebieten der Gemeinde an.</p>
-            <p>Eine Erreichbarkeit gilt als ausreichend, wenn sie die amtlich festgelegte Höchstdauer nicht überschreitet.</p>
+            <h3 mat-h3>Ampel-Score</h3>
+            <p align = "justify">Der Ampel-Score wird für jede Gemeinde berechnet und gibt an, wie gut die nächsten Zentren mit der angegebenen Mobilitätsart erreichbar sind.</p>
+            <p><b>maximale Dauer:</b></p>
+            <p>Die maximale Dauer gibt an, wie lang es dauern darf, um von einem bewohnten Gebiet zum nächsten Zentrum zu gelangen. Überschreiten Gebiete diese Dauer, gelten ihre Erreichbarkeiten als nicht ausreichend.</p>
+            <p><b>obere Grenze</b></p>
+            <p>Die obere Grenze bestimmt prozentual, wieviele Gitterzellen (bewohnten Gebiete) einer Gemeinde eine ausreichende Erreichbarkeit aufweisen müssen, damit die Gemeinde den Ampel-Score 'grün' erhält.</p>
+            <p><b>untere Grenze</b></p>
+            <p>Die untere Grenze bestimmt prozentual, wieviele Gitterzellen (bewohnte Gebiete) einer Gemeinde eine ausreichende Erreichbarkeit aufweisen müssen, damit die Gemeinde den Ampel-Score 'orange' erhält.</p>
           </mat-tab>
           <mat-tab label="Tabelle"> Content 3 </mat-tab>
         </mat-tab-group>      
       </div>
       <div class="filter-element">
         <h3 mat-h3>Kartenoptionen</h3>
+        <form [formGroup] = "maxTimeFG">
+          <mat-form-field>
+            <input matInput type="text" formControlName="maxTime" placeholder="maximale Dauer (min)"> 
+          </mat-form-field>
+          <br>
+          <button mat-flat-button color="primary" (click)="setMaxTime()">Speichern.</button>
+        </form>
         <h4 mat-h4>Ampel-Score</h4>
-        <div *ngIf="gitterLayerIsActive">
-          <p>Der Ampel-Score wird für das aktuell selektierte Erreichbarkeitslayer angezeigt.</p>
-          <form [formGroup] = "ampFG">
-            <mat-form-field>
-              <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
-            </mat-form-field>
-            <button mat-flat-button color="primary" (click)="calculateScore(gitterPkwMittelzentren)">Score berechnen</button>
+        <form [formGroup] = "ampFG">
+          <mat-radio-group color="primary" formControlName="mobIdentifier" class="radio-group">
+            <mat-radio-button value = "fahrrad">Fahrrad</mat-radio-button>
+            <mat-radio-button value = "motor">motorisierter Individualverkehr</mat-radio-button>
+            <mat-radio-button value = "opnv">ÖPNV</mat-radio-button>
+          </mat-radio-group>
+          <mat-radio-group color="primary" formControlName="zentIdentifier" class="radio-group">
+            <mat-radio-button value = "ober">Oberzentren</mat-radio-button>
+            <mat-radio-button value = "mittel">Mittelzentren</mat-radio-button>
+            <mat-radio-button value = "grund">Grundzentren</mat-radio-button>
+          </mat-radio-group>
+          <mat-form-field>
+             <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
+          </mat-form-field>
+          <br>
+          <button mat-flat-button color="primary" (click)="calculateScore()">Score berechnen.</button>
           </form>
-        </div>
-        <div *ngIf="!gitterLayerIsActive">
-          <p>Für den Ampel-Score muss ein Erreichbarkeitslayer ausgewählt werden.</p>
-        </div>
       </div>
       <div class="filter-element">
         <h3 mat-h3>Legende</h3>

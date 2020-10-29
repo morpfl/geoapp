@@ -27,12 +27,14 @@ export class AppComponent implements OnInit {
   mittelzentrenLayer: L.Proj.GeoJSON;
   gemeindenLayer: any;
   grundzentrenLayer: L.Proj.GeoJSON;
-  gitterPkwMittelzentren: L.Proj.GeoJSON;
-  // besserer Wert einschließlich threshold
+  gitterPkwMittelzentren: any;
+  // thresholds (einschließlich besserer Wert)
   thresholdGreenOrange = 0.66;
   thresholdOrangeRed = 0.33;
+  maxTime = 1800;
+  // FormGroups
   ampFG: FormGroup;
-  gitterLayerIsActive = true;
+  maxTimeFG: FormGroup;
 
 
   ngOnInit(): void{
@@ -67,6 +69,9 @@ export class AppComponent implements OnInit {
     });
     this.gitterPkwMittelzentren = L.Proj.geoJson(gitter_500m_pkw_mittelzentren, {
       onEachFeature: (feature: any, layer: any) => {
+        if(feature.properties.min_duration_value){
+          feature.properties.erreichbarkeitStandard = feature.properties.min_duration_value <= this.maxTime;
+        }
         if (feature.properties.erreichbarkeitStandard) {
           layer.setStyle({
             color: 'green'
@@ -78,12 +83,44 @@ export class AppComponent implements OnInit {
           });
         }
       }
-    }).addTo(this.map);
+    });
+
+
+    this.maxTimeFG = new FormGroup({
+      maxTime: new FormControl(this.maxTime / 60, Validators.required),
+    });
 
     this.ampFG = new FormGroup({
       thresholdGreenOrange: new FormControl(this.thresholdGreenOrange, Validators.required),
       thresholdOrangeRed: new FormControl(this.thresholdOrangeRed, Validators.required),
+      mobIdentifier: new FormControl('', Validators.required),
+      zentIdentifier: new FormControl('', Validators.required),
     });
+  }
+
+  setMaxTime(): void {
+    if (!this.maxTimeFG.valid){
+      return;
+    }
+    this.maxTime = this.maxTimeFG.controls.maxTime.value * 60;
+    const gitterAsList = Object.keys(this.gitterPkwMittelzentren._layers).map(gitterIndex => {
+      const singleGitter = this.gitterPkwMittelzentren._layers[gitterIndex];
+      return singleGitter;
+    });
+    gitterAsList.forEach(singleGitter => {
+      singleGitter.feature.properties.erreichbarkeitStandard = singleGitter.feature.properties.min_duration_value <= this.maxTime;
+      if (singleGitter.feature.properties.erreichbarkeitStandard) {
+        singleGitter.setStyle({
+          color: 'green'
+        });
+      }
+      else{
+        singleGitter.setStyle({
+          color: 'red'
+        });
+      }
+    });
+    this.resetScore();
   }
 
   toggleOberzentrenLayer(checked: boolean): void{
@@ -124,23 +161,18 @@ export class AppComponent implements OnInit {
 
   toggle500mPkwMittelzentrenGitter(checked: boolean): void {
     if (checked) {
-      this.gitterLayerIsActive = true;
       this.map.addLayer(this.gitterPkwMittelzentren);
-      this.ampFG = new FormGroup({
-        thresholdGreenOrange: new FormControl(this.thresholdGreenOrange, Validators.required),
-        thresholdOrangeRed: new FormControl(this.thresholdOrangeRed, Validators.required),
-      });
     }
     else{
       this.map.removeLayer(this.gitterPkwMittelzentren);
-      this.gitterLayerIsActive = false;
     }
   }
 
-  calculateScore(gitter: any): void{
+  calculateScore(): void{
     if (!this.ampFG.valid){
       return;
     }
+    const gitter = this.getGitterFromVariables(this.ampFG.controls.mobIdentifier.value, this.ampFG.controls.zentIdentifier.value);
     this.thresholdGreenOrange = this.ampFG.controls.thresholdGreenOrange.value;
     this.thresholdOrangeRed = this.ampFG.controls.thresholdOrangeRed.value;
 
@@ -177,6 +209,28 @@ export class AppComponent implements OnInit {
           color: 'red'
         });
       }
+    }
+  }
+
+  getGitterFromVariables(mobIdentifier, zentIdentifier): any{
+    if (mobIdentifier === 'motor' && zentIdentifier === 'mittel'){
+      return this.gitterPkwMittelzentren;
+    }
+    else{
+      return null;
+    }
+  }
+
+  resetScore(): void {
+    const gemLayers = this.gemeindenLayer._layers;
+    const gemsAsList = Object.keys(gemLayers).map(index => {
+      const gem = gemLayers[index];
+      return gem;
+    });
+    for (const gemeinde of gemsAsList){
+      gemeinde.setStyle({
+        color: '#3388ff'
+      });
     }
   }
 }

@@ -1,3 +1,4 @@
+import { gitter_500_oepnv } from './data/gitter_500_oepnv_25833';
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import 'proj4leaflet';
@@ -8,7 +9,7 @@ import { gemeinden } from './data/gemeinden';
 import { gitter_500m_pkw_mittelzentren } from './data/gitter_500m_pkw_mittelzentren';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { mittelzentrumMarker, oberzentrumMarker } from './defs';
+import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker } from './defs';
 
 
 
@@ -28,6 +29,9 @@ export class AppComponent implements OnInit {
   gemeindenLayer: any;
   grundzentrenLayer: L.Proj.GeoJSON;
   gitterPkwMittelzentren: any;
+  gitterOpnvOberzentren: any;
+  gitterOpnvMittelzentren: any;
+  gitterOpnvGrundzentren: any;
   // thresholds (einschließlich besserer Wert)
   thresholdGreenOrange = 0.66;
   thresholdOrangeRed = 0.33;
@@ -64,7 +68,7 @@ export class AppComponent implements OnInit {
     });
     this.grundzentrenLayer = L.Proj.geoJson(grundzentren, {
       pointToLayer(feature, latlng): L.CircleMarker{
-        return new L.CircleMarker(latlng, oberzentrumMarker);
+        return new L.CircleMarker(latlng, grundzentrumMarker);
       },
     });
     this.gitterPkwMittelzentren = L.Proj.geoJson(gitter_500m_pkw_mittelzentren, {
@@ -72,6 +76,51 @@ export class AppComponent implements OnInit {
         if(feature.properties.min_duration_value){
           feature.properties.erreichbarkeitStandard = feature.properties.min_duration_value <= this.maxTime;
         }
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.gitterOpnvOberzentren = L.Proj.geoJson(gitter_500_oepnv, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = (feature.properties.OZ * 60) <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.gitterOpnvMittelzentren = L.Proj.geoJson(gitter_500_oepnv, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = (feature.properties.MZ * 60) <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.gitterOpnvGrundzentren = L.Proj.geoJson(gitter_500_oepnv, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = (feature.properties.GZ * 60) <= this.maxTime;
         if (feature.properties.erreichbarkeitStandard) {
           layer.setStyle({
             color: 'green'
@@ -98,17 +147,95 @@ export class AppComponent implements OnInit {
     });
   }
 
+  toggleOpnvGitterOberzentren(checked: boolean): void{
+    if (checked){
+      this.map.addLayer(this.gitterOpnvOberzentren);
+    }
+    else{
+      this.map.removeLayer(this.gitterOpnvOberzentren);
+    }
+  }
+
+  toggleOpnvGitterMittelzentren(checked: boolean): void {
+    if (checked){
+      this.map.addLayer(this.gitterOpnvMittelzentren);
+    }
+    else{
+      this.map.removeLayer(this.gitterOpnvMittelzentren);
+    }
+  }
+
+  toggleOpnvGitterGrundzentren(checked: boolean): void {
+    if (checked){
+      this.map.addLayer(this.gitterOpnvGrundzentren);
+    }
+    else{
+      this.map.removeLayer(this.gitterOpnvGrundzentren);
+    }
+  }
+
   setMaxTime(): void {
     if (!this.maxTimeFG.valid){
       return;
     }
     this.maxTime = this.maxTimeFG.controls.maxTime.value * 60;
-    const gitterAsList = Object.keys(this.gitterPkwMittelzentren._layers).map(gitterIndex => {
+    let gitterAsList = Object.keys(this.gitterPkwMittelzentren._layers).map(gitterIndex => {
       const singleGitter = this.gitterPkwMittelzentren._layers[gitterIndex];
       return singleGitter;
     });
     gitterAsList.forEach(singleGitter => {
       singleGitter.feature.properties.erreichbarkeitStandard = singleGitter.feature.properties.min_duration_value <= this.maxTime;
+      if (singleGitter.feature.properties.erreichbarkeitStandard) {
+        singleGitter.setStyle({
+          color: 'green'
+        });
+      }
+      else{
+        singleGitter.setStyle({
+          color: 'red'
+        });
+      }
+    });
+    gitterAsList = Object.keys(this.gitterOpnvOberzentren._layers).map(gitterIndex => {
+      const singleGitter = this.gitterOpnvOberzentren._layers[gitterIndex];
+      return singleGitter;
+    });
+    gitterAsList.forEach(singleGitter => {
+      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.OZ * 60) <= this.maxTime;
+      if (singleGitter.feature.properties.erreichbarkeitStandard) {
+        singleGitter.setStyle({
+          color: 'green'
+        });
+      }
+      else{
+        singleGitter.setStyle({
+          color: 'red'
+        });
+      }
+    });
+    gitterAsList = Object.keys(this.gitterOpnvMittelzentren._layers).map(gitterIndex => {
+      const singleGitter = this.gitterOpnvMittelzentren._layers[gitterIndex];
+      return singleGitter;
+    });
+    gitterAsList.forEach(singleGitter => {
+      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.MZ * 60) <= this.maxTime;
+      if (singleGitter.feature.properties.erreichbarkeitStandard) {
+        singleGitter.setStyle({
+          color: 'green'
+        });
+      }
+      else{
+        singleGitter.setStyle({
+          color: 'red'
+        });
+      }
+    });
+    gitterAsList = Object.keys(this.gitterOpnvGrundzentren._layers).map(gitterIndex => {
+      const singleGitter = this.gitterOpnvGrundzentren._layers[gitterIndex];
+      return singleGitter;
+    });
+    gitterAsList.forEach(singleGitter => {
+      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.GZ * 60) <= this.maxTime;
       if (singleGitter.feature.properties.erreichbarkeitStandard) {
         singleGitter.setStyle({
           color: 'green'
@@ -188,11 +315,13 @@ export class AppComponent implements OnInit {
         return singleGitter;
       });
       gitterAsList.forEach(singleGitter => {
-        if (singleGitter.feature.properties.Zuordnung_Gemeinde_Gitter_500m_SCHLUESSEL === gemeinde.feature.properties.gemeindesc){
+        if (singleGitter.feature.properties.Zuordnung_Gemeinde_Gitter_500m_SCHLUESSEL === gemeinde.feature.properties.gemeindesc ||
+          singleGitter.feature.properties.geog_name === gemeinde.feature.properties.geog_name){
           relatingRasterCells.push(singleGitter);
         }
       });
       const cellsWithinStandard = relatingRasterCells.filter(cell => cell.feature.properties.erreichbarkeitStandard).length;
+      relatingRasterCells.forEach(cell => console.log(cell));
       const percentage = cellsWithinStandard / relatingRasterCells.length;
       if (percentage >= this.thresholdGreenOrange){
         gemeinde.setStyle({
@@ -215,6 +344,15 @@ export class AppComponent implements OnInit {
   getGitterFromVariables(mobIdentifier, zentIdentifier): any{
     if (mobIdentifier === 'motor' && zentIdentifier === 'mittel'){
       return this.gitterPkwMittelzentren;
+    }
+    if (mobIdentifier === 'opnv' && zentIdentifier === 'ober'){
+      return this.gitterOpnvOberzentren;
+    }
+    if (mobIdentifier === 'opnv' && zentIdentifier === 'mittel'){
+      return this.gitterOpnvMittelzentren;
+    }
+    if (mobIdentifier === 'opnv' && zentIdentifier === 'grund'){
+      return this.gitterOpnvGrundzentren;
     }
     else{
       return null;

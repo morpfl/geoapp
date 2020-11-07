@@ -1,38 +1,30 @@
 <div id="wrapper">
   <div id="map"></div>
+  <div id="legend">
+    <h3 mat-h3>Legende:</h3>
+  </div>
   <div id="filter-wrapper">
-    <div class="filter-hidden"></div>
-    <div id="filter-list">
       <div class="filter-element">
         <mat-tab-group>
           <mat-tab label="Layer">
-            <mat-expansion-panel hideToggle>
+            <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Erreichbarkeiten
                 </mat-panel-title>
                 <mat-panel-description>
-                  Anzeige und Vergleich der Erreichbarkeiten
+                  Anzeige der Erreichbarkeitslayer
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <mat-expansion-panel hideToggle>
                 <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    Gitter
-                  </mat-panel-title>
-                  <mat-panel-description>
-                    gitterbasierte Darstellung
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                <mat-expansion-panel hideToggle>
-                  <mat-expansion-panel-header>
                     <mat-panel-title>
                       ÖPNV
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                    <mat-checkbox>Oberzentrum</mat-checkbox><br>
-                    <mat-checkbox>Mittelzentrum</mat-checkbox><br>
-                    <mat-checkbox>Grundzentrum</mat-checkbox><br>
+                    <mat-checkbox (change) = "toggleOpnvGitterOberzentren($event.checked)">Oberzentrum</mat-checkbox><br>
+                    <mat-checkbox (change) = "toggleOpnvGitterMittelzentren($event.checked)">Mittelzentrum</mat-checkbox><br>
+                    <mat-checkbox (change) = "toggleOpnvGitterGrundzentren($event.checked)">Grundzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -51,19 +43,7 @@
                   <p>This is the primary content of the panel.</p>
                 </mat-expansion-panel>
               </mat-expansion-panel>
-              <mat-expansion-panel hideToggle>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    Score
-                  </mat-panel-title>
-                  <mat-panel-description>
-                    score-basierte Darstellung
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                <p>This is the primary content of the panel.</p>
-              </mat-expansion-panel>
-            </mat-expansion-panel>
-            <mat-expansion-panel hideToggle>
+            <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Verwaltungsgrenzen
@@ -71,7 +51,7 @@
               </mat-expansion-panel-header>
               <mat-checkbox checked = "true" (change) = "toggleGemeindenLayer($event.checked)">Gemeindegrenzen</mat-checkbox><br>
             </mat-expansion-panel>
-            <mat-expansion-panel hideToggle>
+            <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Zentrale Orte
@@ -90,6 +70,37 @@
               <p>This is the primary content of the panel</p>
             </mat-expansion-panel>
           </mat-tab>
+          <mat-tab label = "Analyse">
+            <h3 mat-h3>Kartenoptionen</h3>
+            <form [formGroup] = "maxTimeFG">
+              <mat-form-field>
+                <input matInput type="text" formControlName="maxTime" placeholder="maximale Dauer (min)">
+              </mat-form-field>
+              <br>
+              <button mat-flat-button color="primary" (click)="setMaxTime()">Speichern.</button>
+            </form>
+            <h4 mat-h4>Ampel-Score</h4>
+            <form [formGroup] = "ampFG">
+              <mat-radio-group color="primary" formControlName="mobIdentifier" class="radio-group">
+                <mat-radio-button value = "fahrrad">Fahrrad</mat-radio-button>
+                <mat-radio-button value = "motor">motorisierter Individualverkehr</mat-radio-button>
+                <mat-radio-button value = "opnv">ÖPNV</mat-radio-button>
+              </mat-radio-group>
+              <mat-radio-group color="primary" formControlName="zentIdentifier" class="radio-group">
+                <mat-radio-button value = "ober">Oberzentren</mat-radio-button>
+                <mat-radio-button value = "mittel">Mittelzentren</mat-radio-button>
+                <mat-radio-button value = "grund">Grundzentren</mat-radio-button>
+              </mat-radio-group>
+              <mat-form-field>
+                <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
+              </mat-form-field>
+              <br>
+              <button mat-flat-button color="primary" (click)="calculateScore()">Score berechnen.</button>
+            </form>
+          </mat-tab>
           <mat-tab label="Erklärung">
             <h3 mat-h3>Ampel-Score</h3>
             <p align = "justify">Der Ampel-Score wird für jede Gemeinde berechnet und gibt an, wie gut die nächsten Zentren mit der angegebenen Mobilitätsart erreichbar sind.</p>
@@ -101,46 +112,10 @@
             <p>Die untere Grenze bestimmt prozentual, wieviele Gitterzellen (bewohnte Gebiete) einer Gemeinde eine ausreichende Erreichbarkeit aufweisen müssen, damit die Gemeinde den Ampel-Score 'orange' erhält.</p>
           </mat-tab>
           <mat-tab label="Tabelle"> Content 3 </mat-tab>
-        </mat-tab-group>      
+        </mat-tab-group>
       </div>
-      <div class="filter-element">
-        <h3 mat-h3>Kartenoptionen</h3>
-        <form [formGroup] = "maxTimeFG">
-          <mat-form-field>
-            <input matInput type="text" formControlName="maxTime" placeholder="maximale Dauer (min)"> 
-          </mat-form-field>
-          <br>
-          <button mat-flat-button color="primary" (click)="setMaxTime()">Speichern.</button>
-        </form>
-        <h4 mat-h4>Ampel-Score</h4>
-        <form [formGroup] = "ampFG">
-          <mat-radio-group color="primary" formControlName="mobIdentifier" class="radio-group">
-            <mat-radio-button value = "fahrrad">Fahrrad</mat-radio-button>
-            <mat-radio-button value = "motor">motorisierter Individualverkehr</mat-radio-button>
-            <mat-radio-button value = "opnv">ÖPNV</mat-radio-button>
-          </mat-radio-group>
-          <mat-radio-group color="primary" formControlName="zentIdentifier" class="radio-group">
-            <mat-radio-button value = "ober">Oberzentren</mat-radio-button>
-            <mat-radio-button value = "mittel">Mittelzentren</mat-radio-button>
-            <mat-radio-button value = "grund">Grundzentren</mat-radio-button>
-          </mat-radio-group>
-          <mat-form-field>
-             <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
-          </mat-form-field>
-          <br>
-          <button mat-flat-button color="primary" (click)="calculateScore()">Score berechnen.</button>
-          </form>
-      </div>
-      <div class="filter-element">
-        <h3 mat-h3>Legende</h3>
-        <p>Bereich für Legende je nach Filterselektion.</p>
-      </div>
-    </div>
   </div>
 </div>
-  
+
 
 

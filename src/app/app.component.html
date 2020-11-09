@@ -22,9 +22,9 @@
                       ÖPNV
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                    <mat-checkbox (change) = "toggleOpnvGitterOberzentren($event.checked)">Oberzentrum</mat-checkbox><br>
-                    <mat-checkbox (change) = "toggleOpnvGitterMittelzentren($event.checked)">Mittelzentrum</mat-checkbox><br>
-                    <mat-checkbox (change) = "toggleOpnvGitterGrundzentren($event.checked)">Grundzentrum</mat-checkbox><br>
+                    <mat-checkbox [checked] = "opnvOber.isActivated" (change) = "toggleOpnvOber()">Oberzentrum</mat-checkbox><br>
+                    <mat-checkbox [checked] = "opnvMittel.isActivated" (change) = "toggleOpnvMittel()">Mittelzentrum</mat-checkbox><br>
+                    <mat-checkbox [checked] = "opnvGrund.isActivated" (change) = "toggleOpnvGrund()">Grundzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -32,7 +32,9 @@
                       motorisierter Individualverkehr
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                  <mat-checkbox (change) = "toggle500mPkwMittelzentrenGitter($event.checked)">Mittelzentrum</mat-checkbox><br>
+                  <mat-checkbox [checked] = "pkwOber.isActivated" (change) = "togglePkwOber()">Oberzentrum</mat-checkbox><br>
+                  <mat-checkbox [checked] = "pkwMittel.isActivated" (change) = "togglePkwMittel()">Mittelzentrum</mat-checkbox><br>
+                  <mat-checkbox [checked] = "pkwGrund.isActivated"(change) = "togglePkwGrund()">Grundzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
                 <mat-expansion-panel hideToggle>
                   <mat-expansion-panel-header>
@@ -40,7 +42,9 @@
                       Fahrrad
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                  <p>This is the primary content of the panel.</p>
+                  <mat-checkbox [checked] = "frOber.isActivated" (change) = "toggleFrOber()">Oberzentrum</mat-checkbox><br>
+                  <mat-checkbox [checked] = "frMittel.isActivated" (change) = "toggleFrMittel()">Mittelzentrum</mat-checkbox><br>
+                  <mat-checkbox [checked] = "frGrund.isActivated" (change) = "toggleFrGrund()">Grundzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
               </mat-expansion-panel>
             <mat-expansion-panel hideToggle [expanded] = "true">
@@ -82,8 +86,8 @@
             <h4 mat-h4>Ampel-Score</h4>
             <form [formGroup] = "ampFG">
               <mat-radio-group color="primary" formControlName="mobIdentifier" class="radio-group">
-                <mat-radio-button value = "fahrrad">Fahrrad</mat-radio-button>
-                <mat-radio-button value = "motor">motorisierter Individualverkehr</mat-radio-button>
+                <mat-radio-button value = "fr">Fahrrad</mat-radio-button>
+                <mat-radio-button value = "pkw">motorisierter Individualverkehr</mat-radio-button>
                 <mat-radio-button value = "opnv">ÖPNV</mat-radio-button>
               </mat-radio-group>
               <mat-radio-group color="primary" formControlName="zentIdentifier" class="radio-group">

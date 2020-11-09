@@ -1,4 +1,4 @@
-import { gitter_500_oepnv } from './data/gitter_500_oepnv_25833';
+import { raster } from './data/Gitter_500_gesamt';
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import 'proj4leaflet';
@@ -6,10 +6,9 @@ import { oberzentren } from './data/oberzentren';
 import { grundzentren } from './data/grundzentren';
 import { mittelzentren } from './data/mittelzentren';
 import { gemeinden } from './data/gemeinden';
-import { gitter_500m_pkw_mittelzentren } from './data/gitter_500m_pkw_mittelzentren';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker } from './defs';
+import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer } from './defs';
 
 
 
@@ -28,10 +27,18 @@ export class AppComponent implements OnInit {
   mittelzentrenLayer: L.Proj.GeoJSON;
   gemeindenLayer: any;
   grundzentrenLayer: L.Proj.GeoJSON;
-  gitterPkwMittelzentren: any;
-  gitterOpnvOberzentren: any;
-  gitterOpnvMittelzentren: any;
-  gitterOpnvGrundzentren: any;
+  pkwMittel: CustLayer = new CustLayer();
+  pkwOber: CustLayer = new CustLayer();
+  pkwGrund: CustLayer = new CustLayer();
+  opnvOber: CustLayer = new CustLayer();
+  opnvMittel: CustLayer = new CustLayer();
+  opnvGrund: CustLayer = new CustLayer();
+  frOber: CustLayer = new CustLayer();
+  frMittel: CustLayer = new CustLayer();
+  frGrund: CustLayer = new CustLayer();
+  layerList: CustLayer[] = [this.pkwGrund, this.pkwMittel, this.pkwOber,
+    this.opnvGrund, this.opnvMittel, this.opnvOber,
+    this.frGrund, this.frMittel, this.frOber];
   // thresholds (einschließlich besserer Wert)
   thresholdGreenOrange = 0.66;
   thresholdOrangeRed = 0.33;
@@ -71,69 +78,6 @@ export class AppComponent implements OnInit {
         return new L.CircleMarker(latlng, grundzentrumMarker);
       },
     });
-    this.gitterPkwMittelzentren = L.Proj.geoJson(gitter_500m_pkw_mittelzentren, {
-      onEachFeature: (feature: any, layer: any) => {
-        if(feature.properties.min_duration_value){
-          feature.properties.erreichbarkeitStandard = feature.properties.min_duration_value <= this.maxTime;
-        }
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
-          });
-        }
-      }
-    });
-    this.gitterOpnvOberzentren = L.Proj.geoJson(gitter_500_oepnv, {
-      onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = (feature.properties.OZ * 60) <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
-          });
-        }
-      }
-    });
-    this.gitterOpnvMittelzentren = L.Proj.geoJson(gitter_500_oepnv, {
-      onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = (feature.properties.MZ * 60) <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
-          });
-        }
-      }
-    });
-    this.gitterOpnvGrundzentren = L.Proj.geoJson(gitter_500_oepnv, {
-      onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = (feature.properties.GZ * 60) <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
-          });
-        }
-      }
-    });
-
 
     this.maxTimeFG = new FormGroup({
       maxTime: new FormControl(this.maxTime / 60, Validators.required),
@@ -145,109 +89,156 @@ export class AppComponent implements OnInit {
       mobIdentifier: new FormControl('', Validators.required),
       zentIdentifier: new FormControl('', Validators.required),
     });
+
+    this.precalculatePkwRasters();
+    this.precalculateOpnvRasters();
+    this.precalculateBikeRasters();
+
   }
 
-  toggleOpnvGitterOberzentren(checked: boolean): void{
-    if (checked){
-      this.map.addLayer(this.gitterOpnvOberzentren);
-    }
-    else{
-      this.map.removeLayer(this.gitterOpnvOberzentren);
-    }
+  precalculatePkwRasters(): void {
+    this.pkwOber.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.OZ_Pkw_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.pkwMittel.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.MZ_Pkw_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.pkwGrund.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.GZ_Pkw_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
   }
 
-  toggleOpnvGitterMittelzentren(checked: boolean): void {
-    if (checked){
-      this.map.addLayer(this.gitterOpnvMittelzentren);
-    }
-    else{
-      this.map.removeLayer(this.gitterOpnvMittelzentren);
-    }
+  precalculateOpnvRasters(): void {
+    const maxTime = this.maxTime / 60;
+    this.opnvOber.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.OZ_OEPNV <= maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.opnvMittel.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.MZ_OEPNV <= maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
+    this.opnvGrund.layer= L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.GZ_OEPNV <= maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+      }
+    });
   }
 
-  toggleOpnvGitterGrundzentren(checked: boolean): void {
-    if (checked){
-      this.map.addLayer(this.gitterOpnvGrundzentren);
-    }
-    else{
-      this.map.removeLayer(this.gitterOpnvGrundzentren);
-    }
-  }
-
-  setMaxTime(): void {
-    if (!this.maxTimeFG.valid){
-      return;
-    }
-    this.maxTime = this.maxTimeFG.controls.maxTime.value * 60;
-    let gitterAsList = Object.keys(this.gitterPkwMittelzentren._layers).map(gitterIndex => {
-      const singleGitter = this.gitterPkwMittelzentren._layers[gitterIndex];
-      return singleGitter;
-    });
-    gitterAsList.forEach(singleGitter => {
-      singleGitter.feature.properties.erreichbarkeitStandard = singleGitter.feature.properties.min_duration_value <= this.maxTime;
-      if (singleGitter.feature.properties.erreichbarkeitStandard) {
-        singleGitter.setStyle({
-          color: 'green'
-        });
-      }
-      else{
-        singleGitter.setStyle({
-          color: 'red'
-        });
+  precalculateBikeRasters(): void {
+    this.frOber.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.OZ_Bike_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
       }
     });
-    gitterAsList = Object.keys(this.gitterOpnvOberzentren._layers).map(gitterIndex => {
-      const singleGitter = this.gitterOpnvOberzentren._layers[gitterIndex];
-      return singleGitter;
-    });
-    gitterAsList.forEach(singleGitter => {
-      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.OZ * 60) <= this.maxTime;
-      if (singleGitter.feature.properties.erreichbarkeitStandard) {
-        singleGitter.setStyle({
-          color: 'green'
-        });
-      }
-      else{
-        singleGitter.setStyle({
-          color: 'red'
-        });
+    this.frMittel.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.MZ_Bike_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
       }
     });
-    gitterAsList = Object.keys(this.gitterOpnvMittelzentren._layers).map(gitterIndex => {
-      const singleGitter = this.gitterOpnvMittelzentren._layers[gitterIndex];
-      return singleGitter;
-    });
-    gitterAsList.forEach(singleGitter => {
-      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.MZ * 60) <= this.maxTime;
-      if (singleGitter.feature.properties.erreichbarkeitStandard) {
-        singleGitter.setStyle({
-          color: 'green'
-        });
-      }
-      else{
-        singleGitter.setStyle({
-          color: 'red'
-        });
+    this.frGrund.layer = L.Proj.geoJson(raster, {
+      onEachFeature: (feature: any, layer: any) => {
+        feature.properties.erreichbarkeitStandard = feature.properties.GZ_Bike_Zeit <= this.maxTime;
+        if (feature.properties.erreichbarkeitStandard) {
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        else{
+          layer.setStyle({
+            color: 'red'
+          });
+        }
       }
     });
-    gitterAsList = Object.keys(this.gitterOpnvGrundzentren._layers).map(gitterIndex => {
-      const singleGitter = this.gitterOpnvGrundzentren._layers[gitterIndex];
-      return singleGitter;
-    });
-    gitterAsList.forEach(singleGitter => {
-      singleGitter.feature.properties.erreichbarkeitStandard = (singleGitter.feature.properties.GZ * 60) <= this.maxTime;
-      if (singleGitter.feature.properties.erreichbarkeitStandard) {
-        singleGitter.setStyle({
-          color: 'green'
-        });
-      }
-      else{
-        singleGitter.setStyle({
-          color: 'red'
-        });
-      }
-    });
-    this.resetScore();
   }
 
   toggleOberzentrenLayer(checked: boolean): void{
@@ -286,14 +277,119 @@ export class AppComponent implements OnInit {
     }
   }
 
-  toggle500mPkwMittelzentrenGitter(checked: boolean): void {
-    if (checked) {
-      this.map.addLayer(this.gitterPkwMittelzentren);
+  toggleOpnvOber(): void{
+    this.opnvOber.isActivated = !this.opnvOber.isActivated;
+    if (this.opnvOber.isActivated){
+      this.map.addLayer(this.opnvOber.layer);
     }
     else{
-      this.map.removeLayer(this.gitterPkwMittelzentren);
+      this.map.removeLayer(this.opnvOber.layer);
     }
   }
+
+  toggleOpnvMittel(): void {
+    this.opnvMittel.isActivated = !this.opnvMittel.isActivated;
+    if (this.opnvMittel.isActivated){
+      this.map.addLayer(this.opnvMittel.layer);
+    }
+    else{
+      this.map.removeLayer(this.opnvMittel.layer);
+    }
+  }
+
+  toggleOpnvGrund(): void {
+    this.opnvGrund.isActivated = !this.opnvGrund.isActivated;
+    if (this.opnvGrund.isActivated){
+      this.map.addLayer(this.opnvGrund.layer);
+    }
+    else{
+      this.map.removeLayer(this.opnvGrund.layer);
+    }
+  }
+
+  togglePkwOber(): void {
+    this.pkwOber.isActivated = !this.pkwOber.isActivated;
+    if (this.pkwOber.isActivated) {
+      this.map.addLayer(this.pkwOber.layer);
+    }
+    else{
+      this.map.removeLayer(this.pkwOber.layer);
+    }
+  }
+
+  togglePkwMittel(): void {
+    this.pkwMittel.isActivated = !this.pkwMittel.isActivated;
+    if (this.pkwMittel.isActivated) {
+      this.map.addLayer(this.pkwMittel.layer);
+    }
+    else{
+      this.map.removeLayer(this.pkwMittel.layer);
+    }
+  }
+
+  togglePkwGrund(): void {
+    this.pkwGrund.isActivated = !this.pkwGrund.isActivated;
+    if (this.pkwGrund.isActivated) {
+      this.map.addLayer(this.pkwGrund.layer);
+    }
+    else{
+      this.map.removeLayer(this.pkwGrund.layer);
+    }
+  }
+
+  toggleFrOber(): void {
+    this.frOber.isActivated = !this.frOber.isActivated;
+    if (this.frOber.isActivated) {
+      this.map.addLayer(this.frOber.layer);
+    }
+    else{
+      this.map.removeLayer(this.frOber.layer);
+    }
+  }
+
+  toggleFrMittel(): void {
+    this.frMittel.isActivated = !this.frMittel.isActivated;
+    if (this.frMittel.isActivated) {
+      this.map.addLayer(this.frMittel.layer);
+    }
+    else{
+      this.map.removeLayer(this.frMittel.layer);
+    }
+  }
+
+  toggleFrGrund(): void {
+    this.frGrund.isActivated = !this.frGrund.isActivated;
+    if (this.frGrund.isActivated) {
+      this.map.addLayer(this.frGrund.layer);
+    }
+    else{
+      this.map.removeLayer(this.frGrund.layer);
+    }
+  }
+
+  setMaxTime(): void {
+    if (!this.maxTimeFG.valid){
+      return;
+    }
+    this.maxTime = this.maxTimeFG.controls.maxTime.value * 60;
+    this.resetScore();
+    let indexOfActivatedLayer = -1;
+    for (const layerWrapper of this.layerList){
+      if (layerWrapper.isActivated){
+        indexOfActivatedLayer = this.layerList.indexOf(layerWrapper);
+      }
+      layerWrapper.isActivated = false;
+    }
+    this.resetLayers();
+    this.precalculateBikeRasters();
+    this.precalculateOpnvRasters();
+    this.precalculatePkwRasters();
+    if (indexOfActivatedLayer !== -1) {
+      this.layerList[indexOfActivatedLayer].isActivated = true;
+      this.map.addLayer(this.layerList[indexOfActivatedLayer].layer);
+    }
+  }
+
 
   calculateScore(): void{
     if (!this.ampFG.valid){
@@ -315,13 +411,12 @@ export class AppComponent implements OnInit {
         return singleGitter;
       });
       gitterAsList.forEach(singleGitter => {
-        if (singleGitter.feature.properties.Zuordnung_Gemeinde_Gitter_500m_SCHLUESSEL === gemeinde.feature.properties.gemeindesc ||
-          singleGitter.feature.properties.geog_name === gemeinde.feature.properties.geog_name){
+        if (singleGitter.feature.properties.AGS === gemeinde.feature.properties.gemeindesc){
           relatingRasterCells.push(singleGitter);
         }
       });
       const cellsWithinStandard = relatingRasterCells.filter(cell => cell.feature.properties.erreichbarkeitStandard).length;
-      relatingRasterCells.forEach(cell => console.log(cell));
+      console.log(cellsWithinStandard);
       const percentage = cellsWithinStandard / relatingRasterCells.length;
       if (percentage >= this.thresholdGreenOrange){
         gemeinde.setStyle({
@@ -342,17 +437,32 @@ export class AppComponent implements OnInit {
   }
 
   getGitterFromVariables(mobIdentifier, zentIdentifier): any{
-    if (mobIdentifier === 'motor' && zentIdentifier === 'mittel'){
-      return this.gitterPkwMittelzentren;
+    if (mobIdentifier === 'pkw' && zentIdentifier === 'ober'){
+      return this.pkwOber.layer;
+    }
+    if (mobIdentifier === 'pkw' && zentIdentifier === 'mittel'){
+      return this.pkwMittel.layer;
+    }
+    if (mobIdentifier === 'pkw' && zentIdentifier === 'grund'){
+      return this.pkwGrund.layer;
     }
     if (mobIdentifier === 'opnv' && zentIdentifier === 'ober'){
-      return this.gitterOpnvOberzentren;
+      return this.opnvOber.layer;
     }
     if (mobIdentifier === 'opnv' && zentIdentifier === 'mittel'){
-      return this.gitterOpnvMittelzentren;
+      return this.opnvMittel.layer;
     }
     if (mobIdentifier === 'opnv' && zentIdentifier === 'grund'){
-      return this.gitterOpnvGrundzentren;
+      return this.opnvGrund.layer;
+    }
+    if (mobIdentifier === 'fr' && zentIdentifier === 'ober'){
+      return this.frOber.layer;
+    }
+    if (mobIdentifier === 'fr' && zentIdentifier === 'mittel'){
+      return this.frMittel.layer;
+    }
+    if (mobIdentifier === 'fr' && zentIdentifier === 'grund'){
+      return this.frGrund.layer;
     }
     else{
       return null;
@@ -370,6 +480,18 @@ export class AppComponent implements OnInit {
         color: '#3388ff'
       });
     }
+  }
+
+  resetLayers(): void {
+    this.map.removeLayer(this.frGrund.layer);
+    this.map.removeLayer(this.frMittel.layer);
+    this.map.removeLayer(this.frOber.layer);
+    this.map.removeLayer(this.pkwGrund.layer);
+    this.map.removeLayer(this.pkwMittel.layer);
+    this.map.removeLayer(this.pkwOber.layer);
+    this.map.removeLayer(this.opnvGrund.layer);
+    this.map.removeLayer(this.opnvMittel.layer);
+    this.map.removeLayer(this.opnvOber.layer);
   }
 }
 

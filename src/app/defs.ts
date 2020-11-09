@@ -26,3 +26,13 @@ export const grundzentrumMarker = {
     fillOpacity: 0.85,
     color: 'orange'
 };
+
+export class CustLayer {
+  layer: any;
+  isActivated: boolean;
+  public CustLayer(): CustLayer {
+    this.layer = null;
+    this.isActivated = false;
+    return this;
+  }
+}

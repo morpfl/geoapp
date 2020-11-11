@@ -16,6 +16,12 @@
                   Anzeige der Erreichbarkeitslayer
                 </mat-panel-description>
               </mat-expansion-panel-header>
+              <form [formGroup] = "maxTimeFG">
+                <mat-form-field>
+                  <input matInput type="text" formControlName="maxTime" placeholder="maximale Dauer (min)">
+                </mat-form-field>
+                <button mat-icon-button (click)="setMaxTime()"><mat-icon>done</mat-icon></button>
+              </form>
               <mat-expansion-panel hideToggle>
                 <mat-expansion-panel-header>
                     <mat-panel-title>
@@ -73,36 +79,45 @@
               </mat-expansion-panel-header>
               <p>This is the primary content of the panel</p>
             </mat-expansion-panel>
+            <br>
           </mat-tab>
           <mat-tab label = "Analyse">
-            <h3 mat-h3>Kartenoptionen</h3>
-            <form [formGroup] = "maxTimeFG">
-              <mat-form-field>
-                <input matInput type="text" formControlName="maxTime" placeholder="maximale Dauer (min)">
-              </mat-form-field>
-              <br>
-              <button mat-flat-button color="primary" (click)="setMaxTime()">Speichern.</button>
-            </form>
-            <h4 mat-h4>Ampel-Score</h4>
+            <h3 mat-h3>Score-Berechnung - Prototype</h3>
+            <h4 mat-h4>1. Minimal- und Maximalzeiten</h4>
             <form [formGroup] = "ampFG">
-              <mat-radio-group color="primary" formControlName="mobIdentifier" class="radio-group">
-                <mat-radio-button value = "fr">Fahrrad</mat-radio-button>
-                <mat-radio-button value = "pkw">motorisierter Individualverkehr</mat-radio-button>
-                <mat-radio-button value = "opnv">ÖPNV</mat-radio-button>
-              </mat-radio-group>
-              <mat-radio-group color="primary" formControlName="zentIdentifier" class="radio-group">
-                <mat-radio-button value = "ober">Oberzentren</mat-radio-button>
-                <mat-radio-button value = "mittel">Mittelzentren</mat-radio-button>
-                <mat-radio-button value = "grund">Grundzentren</mat-radio-button>
-              </mat-radio-group>
               <mat-form-field>
-                <input matInput type="text" formControlName="thresholdGreenOrange" placeholder="obere Grenze (grün-orange)">
+                <input matInput type="text" formControlName="pkwMin" placeholder="PKW - minimale Zeit">
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="text" formControlName="thresholdOrangeRed" placeholder="untere Grenze (orange-rot)">
+                <input matInput type="text" formControlName="pkwMax" placeholder="PKW - maximale Zeit">
               </mat-form-field>
               <br>
-              <button mat-flat-button color="primary" (click)="calculateScore()">Score berechnen.</button>
+              <mat-form-field>
+                <input matInput type="text" formControlName="opnvMin" placeholder="ÖPNV - minimale Zeit">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="text" formControlName="opnvMax" placeholder="ÖPNV - maximale Zeit">
+              </mat-form-field>
+              <br>
+              <mat-form-field>
+                <input matInput type="text" formControlName="bikeMin" placeholder="Fahrrad - minimale Zeit">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="text" formControlName="bikeMax" placeholder="Fahrrad - maximale Zeit">
+              </mat-form-field>
+              <br>
+              <div *ngIf="scoreCounter === 1">
+                <h4 mat-h4>2. Gewichtung der Mobilitätsarten</h4>
+                <p>PKW:</p>
+                <mat-slider formControlName="pkwWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
+                <p>ÖPNV:</p>
+                <mat-slider formControlName="opnvWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
+                <p>Fahrrad:</p>
+                <mat-slider formControlName="bikeWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
+                <br>
+              </div>
+              <button *ngIf="scoreCounter < 1" mat-flat-button color="primary" (click)="next()">Weiter</button>
+              <button *ngIf="scoreCounter === 1" mat-flat-button color="primary" (click)="calculateScore()">Score berechnen</button>
             </form>
           </mat-tab>
           <mat-tab label="Erklärung">

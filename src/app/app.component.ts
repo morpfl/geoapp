@@ -40,12 +40,14 @@ export class AppComponent implements OnInit {
     this.opnvGrund, this.opnvMittel, this.opnvOber,
     this.frGrund, this.frMittel, this.frOber];
   // thresholds (einschließlich besserer Wert)
-  thresholdGreenOrange = 0.66;
-  thresholdOrangeRed = 0.33;
+  pkwStandard = 30;
+  bikeStandard = 30;
+  opnvStandard = 45;
   maxTime = 1800;
   // FormGroups
   ampFG: FormGroup;
   maxTimeFG: FormGroup;
+  scoreCounter = 0;
 
 
   ngOnInit(): void{
@@ -84,10 +86,16 @@ export class AppComponent implements OnInit {
     });
 
     this.ampFG = new FormGroup({
-      thresholdGreenOrange: new FormControl(this.thresholdGreenOrange, Validators.required),
-      thresholdOrangeRed: new FormControl(this.thresholdOrangeRed, Validators.required),
-      mobIdentifier: new FormControl('', Validators.required),
-      zentIdentifier: new FormControl('', Validators.required),
+      pkwMin: new FormControl(this.pkwStandard, Validators.required),
+      pkwMax: new FormControl(this.pkwStandard, Validators.required),
+      opnvMin: new FormControl(this.opnvStandard, Validators.required),
+      opnvMax: new FormControl(this.opnvStandard, Validators.required),
+      bikeMin: new FormControl(this.bikeStandard, Validators.required),
+      bikeMax: new FormControl(this.bikeStandard, Validators.required),
+      pkwWeight: new FormControl('', Validators.required),
+      opnvWeight: new FormControl('', Validators.required),
+      bikeWeight: new FormControl('', Validators.required),
+
     });
 
     this.precalculatePkwRasters();
@@ -392,48 +400,49 @@ export class AppComponent implements OnInit {
 
 
   calculateScore(): void{
-    if (!this.ampFG.valid){
-      return;
-    }
-    const gitter = this.getGitterFromVariables(this.ampFG.controls.mobIdentifier.value, this.ampFG.controls.zentIdentifier.value);
-    this.thresholdGreenOrange = this.ampFG.controls.thresholdGreenOrange.value;
-    this.thresholdOrangeRed = this.ampFG.controls.thresholdOrangeRed.value;
 
-    const gemLayers = this.gemeindenLayer._layers;
-    const gemsAsList = Object.keys(gemLayers).map(index => {
-      const gem = gemLayers[index];
-      return gem;
-    });
-    for (const gemeinde of gemsAsList){
-      const relatingRasterCells = [];
-      const gitterAsList = Object.keys(gitter._layers).map(gitterIndex => {
-        const singleGitter = gitter._layers[gitterIndex];
-        return singleGitter;
-      });
-      gitterAsList.forEach(singleGitter => {
-        if (singleGitter.feature.properties.AGS === gemeinde.feature.properties.gemeindesc){
-          relatingRasterCells.push(singleGitter);
-        }
-      });
-      const cellsWithinStandard = relatingRasterCells.filter(cell => cell.feature.properties.erreichbarkeitStandard).length;
-      console.log(cellsWithinStandard);
-      const percentage = cellsWithinStandard / relatingRasterCells.length;
-      if (percentage >= this.thresholdGreenOrange){
-        gemeinde.setStyle({
-          color: 'green'
-        });
-      }
-      if (percentage < this.thresholdGreenOrange && percentage >= this.thresholdOrangeRed){
-        gemeinde.setStyle({
-          color: 'orange'
-        });
-      }
-      if (percentage < this.thresholdOrangeRed){
-        gemeinde.setStyle({
-          color: 'red'
-        });
-      }
-    }
+    // if (!this.ampFG.valid){
+    //   return;
+    // }
+    // const gitter = this.getGitterFromVariables(this.ampFG.controls.mobIdentifier.value, this.ampFG.controls.zentIdentifier.value);
+    // this.thresholdGreenOrange = this.ampFG.controls.thresholdGreenOrange.value;
+    // this.thresholdOrangeRed = this.ampFG.controls.thresholdOrangeRed.value;
+
+    // const gemLayers = this.gemeindenLayer._layers;
+    // const gemsAsList = Object.keys(gemLayers).map(index => {
+    //   const gem = gemLayers[index];
+    //   return gem;
+    // });
+    // for (const gemeinde of gemsAsList){
+    //   const relatingRasterCells = [];
+    //   const gitterAsList = Object.keys(gitter._layers).map(gitterIndex => {
+    //     const singleGitter = gitter._layers[gitterIndex];
+    //     return singleGitter;
+    //   });
+    //   gitterAsList.forEach(singleGitter => {
+    //     if (singleGitter.feature.properties.AGS === gemeinde.feature.properties.gemeindesc){
+    //       relatingRasterCells.push(singleGitter);
+    //     }
+    //   });
+    //   const cellsWithinStandard = relatingRasterCells.filter(cell => cell.feature.properties.erreichbarkeitStandard).length;
+    //   console.log(cellsWithinStandard);
+    //   const percentage = cellsWithinStandard / relatingRasterCells.length;
+    //   if (percentage >= this.thresholdGreenOrange){
+    //     gemeinde.setStyle({
+    //       color: 'green'
+    //     });
+    //   }
+    //   if (percentage < this.thresholdGreenOrange && percentage >= this.thresholdOrangeRed){
+    //     gemeinde.setStyle({
+    //       color: 'orange'
+    //     });
+    //   }
+    //   if (percentage < this.thresholdOrangeRed){
+    //     gemeinde.setStyle({
+    //       color: 'red'
+    //     });
+    //   }
+    // }
   }
 
   getGitterFromVariables(mobIdentifier, zentIdentifier): any{
@@ -492,6 +501,14 @@ export class AppComponent implements OnInit {
     this.map.removeLayer(this.opnvGrund.layer);
     this.map.removeLayer(this.opnvMittel.layer);
     this.map.removeLayer(this.opnvOber.layer);
+  }
+
+  formatLabel(value: number): number {
+    return value;
+  }
+
+  next(): void{
+    this.scoreCounter++;
   }
 }
 

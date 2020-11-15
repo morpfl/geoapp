@@ -8,7 +8,7 @@ import { mittelzentren } from './data/mittelzentren';
 import { gemeinden } from './data/gemeinden';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer } from './defs';
+import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund } from './defs';
 
 
 
@@ -39,10 +39,6 @@ export class AppComponent implements OnInit {
   layerList: CustLayer[] = [this.pkwGrund, this.pkwMittel, this.pkwOber,
     this.opnvGrund, this.opnvMittel, this.opnvOber,
     this.frGrund, this.frMittel, this.frOber];
-  // thresholds (einschließlich besserer Wert)
-  pkwStandard = 30;
-  bikeStandard = 30;
-  opnvStandard = 45;
   maxTime = 1800;
   // FormGroups
   ampFG: FormGroup;
@@ -86,16 +82,27 @@ export class AppComponent implements OnInit {
     });
 
     this.ampFG = new FormGroup({
-      pkwMin: new FormControl(this.pkwStandard, Validators.required),
-      pkwMax: new FormControl(this.pkwStandard, Validators.required),
-      opnvMin: new FormControl(this.opnvStandard, Validators.required),
-      opnvMax: new FormControl(this.opnvStandard, Validators.required),
-      bikeMin: new FormControl(this.bikeStandard, Validators.required),
-      bikeMax: new FormControl(this.bikeStandard, Validators.required),
-      pkwWeight: new FormControl('', Validators.required),
-      opnvWeight: new FormControl('', Validators.required),
-      bikeWeight: new FormControl('', Validators.required),
-
+      pkwMinOber: new FormControl(pkwDefaultOber),
+      pkwMaxOber: new FormControl(pkwDefaultOber),
+      pkwMinMittel: new FormControl(pkwDefaultMittel),
+      pkwMaxMittel: new FormControl(pkwDefaultMittel),
+      pkwMinGrund: new FormControl(pkwDefaultGrund),
+      pkwMaxGrund: new FormControl(pkwDefaultGrund),
+      opnvMinOber: new FormControl(opnvDefaultOber),
+      opnvMaxOber: new FormControl(opnvDefaultOber),
+      opnvMinMittel: new FormControl(opnvDefaultMittel),
+      opnvMaxMittel: new FormControl(opnvDefaultMittel),
+      opnvMinGrund: new FormControl(opnvDefaultGrund),
+      opnvMaxGrund: new FormControl(opnvDefaultGrund),
+      bikeMinOber: new FormControl(bikeDefaultOber),
+      bikeMaxOber: new FormControl(bikeDefaultOber),
+      bikeMinMittel: new FormControl(bikeDefaultMittel),
+      bikeMaxMittel: new FormControl(bikeDefaultMittel),
+      bikeMinGrund: new FormControl(bikeDefaultGrund),
+      bikeMaxGrund: new FormControl(bikeDefaultGrund),
+      pkwWeight: new FormControl(0, Validators.required),
+      opnvWeight: new FormControl(0, Validators.required),
+      bikeWeight: new FormControl(0, Validators.required),
     });
 
     this.precalculatePkwRasters();
@@ -401,82 +408,110 @@ export class AppComponent implements OnInit {
 
   calculateScore(): void{
 
-    // if (!this.ampFG.valid){
-    //   return;
-    // }
-    // const gitter = this.getGitterFromVariables(this.ampFG.controls.mobIdentifier.value, this.ampFG.controls.zentIdentifier.value);
-    // this.thresholdGreenOrange = this.ampFG.controls.thresholdGreenOrange.value;
-    // this.thresholdOrangeRed = this.ampFG.controls.thresholdOrangeRed.value;
+    //ideal 20, maximal 30, actual: 25
+    //30 - 20 = 10
+    //25 - 20 = 5
+    // 1 - 5/10 = 0.5
 
-    // const gemLayers = this.gemeindenLayer._layers;
-    // const gemsAsList = Object.keys(gemLayers).map(index => {
-    //   const gem = gemLayers[index];
-    //   return gem;
-    // });
-    // for (const gemeinde of gemsAsList){
-    //   const relatingRasterCells = [];
-    //   const gitterAsList = Object.keys(gitter._layers).map(gitterIndex => {
-    //     const singleGitter = gitter._layers[gitterIndex];
-    //     return singleGitter;
-    //   });
-    //   gitterAsList.forEach(singleGitter => {
-    //     if (singleGitter.feature.properties.AGS === gemeinde.feature.properties.gemeindesc){
-    //       relatingRasterCells.push(singleGitter);
-    //     }
-    //   });
-    //   const cellsWithinStandard = relatingRasterCells.filter(cell => cell.feature.properties.erreichbarkeitStandard).length;
-    //   console.log(cellsWithinStandard);
-    //   const percentage = cellsWithinStandard / relatingRasterCells.length;
-    //   if (percentage >= this.thresholdGreenOrange){
-    //     gemeinde.setStyle({
-    //       color: 'green'
-    //     });
-    //   }
-    //   if (percentage < this.thresholdGreenOrange && percentage >= this.thresholdOrangeRed){
-    //     gemeinde.setStyle({
-    //       color: 'orange'
-    //     });
-    //   }
-    //   if (percentage < this.thresholdOrangeRed){
-    //     gemeinde.setStyle({
-    //       color: 'red'
-    //     });
-    //   }
-    // }
+    if (!this.ampFG.valid){
+      return;
+    }
+    const gemLayers = this.gemeindenLayer._layers;
+    const gemsAsList = Object.keys(gemLayers).map(index => {
+      const gem = gemLayers[index];
+      return gem;
+    });
+    for (const gemeinde of gemsAsList){
+      const relatingRasterCells = [];
+      raster.features.forEach(singleGitter => {
+        if (singleGitter.properties.AGS === gemeinde.feature.properties.gemeindesc){
+          relatingRasterCells.push(singleGitter);
+        }
+      });
+      relatingRasterCells.forEach(rasterCell => {
+        const pkwScoreOz = this.calcSingleScore(this.ampFG.controls.pkwMinOber.value, this.ampFG.controls.pkwMaxOber.value,
+          rasterCell.properties.OZ_Pkw_Zeit);
+        const pkwScoreMz = this.calcSingleScore(this.ampFG.controls.pkwMinMittel.value, this.ampFG.controls.pkwMaxMittel.value,
+          rasterCell.properties.MZ_Pkw_Zeit);
+        const pkwScoreGz = this.calcSingleScore(this.ampFG.controls.pkwMinGrund.value, this.ampFG.controls.pkwMaxGrund.value,
+          rasterCell.properties.GZ_Pkw_Zeit);
+        const opnvScoreOz = this.calcSingleScore(this.ampFG.controls.opnvMinOber.value, this.ampFG.controls.opnvMaxOber.value,
+          rasterCell.properties.OZ_OEPNV);
+        const opnvScoreMz = this.calcSingleScore(this.ampFG.controls.opnvMinMittel.value, this.ampFG.controls.opnvMaxMittel.value,
+          rasterCell.properties.MZ_OEPNV);
+        const opnvScoreGz = this.calcSingleScore(this.ampFG.controls.opnvMinGrund.value, this.ampFG.controls.opnvMaxGrund.value,
+          rasterCell.properties.GZ_OEPNV);
+        const bikeScoreOz = this.calcSingleScore(this.ampFG.controls.bikeMinOber.value, this.ampFG.controls.bikeMaxOber.value,
+          rasterCell.properties.OZ_Bike_Zeit);
+        const bikeScoreMz = this.calcSingleScore(this.ampFG.controls.bikeMinMittel.value, this.ampFG.controls.bikeMaxMittel.value,
+          rasterCell.properties.MZ_Bike_Zeit);
+        const bikeScoreGz = this.calcSingleScore(this.ampFG.controls.bikeMinGrund.value, this.ampFG.controls.bikeMaxGrund.value,
+          rasterCell.properties.GZ_Bike_Zeit);
+        // weight score
+        const weightedScore = (pkwScoreOz + pkwScoreMz + pkwScoreGz) * this.ampFG.controls.pkwWeight.value +
+                              (opnvScoreOz + opnvScoreMz + opnvScoreGz) * this.ampFG.controls.opnvWeight.value +
+                              (bikeScoreOz + bikeScoreMz + bikeScoreGz) * this.ampFG.controls.bikeWeight.value;
+        rasterCell.properties.score = weightedScore;
+      });
+      let sumOfScores = 0;
+      relatingRasterCells.forEach(rasterCell => {
+        sumOfScores += rasterCell.properties.score;
+      });
+      const averageScore = Math.round(sumOfScores / relatingRasterCells.length);
+      gemeinde.feature.properties.score = averageScore;
+    }
+    const that = this;
+    this.map.removeLayer(this.gemeindenLayer);
+    const maxScore = 3 * this.ampFG.controls.pkwWeight.value
+                   + 3 * this.ampFG.controls.opnvWeight.value
+                   + 3 * this.ampFG.controls.bikeWeight.value;
+    this.gemeindenLayer = L.Proj.geoJson(gemeinden, {
+      onEachFeature: (feature: any, layer: any) => {
+        if (feature.properties.score > maxScore * 0.66){
+          layer.setStyle({
+            color: 'green'
+          });
+        }
+        if (feature.properties.score > maxScore * 0.33 && feature.properties.score <= maxScore * 0.66){
+          layer.setStyle({
+            color: 'orange'
+          });
+        }
+
+        if (feature.properties.score <= maxScore * 0.33){
+          layer.setStyle({
+            color: 'red'
+          });
+        }
+
+        if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
+          const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic + ' |'
+          + ' Score: ' + feature.properties.score + '/' + maxScore;
+          layer.bindPopup(textToDisplay);
+          layer.on('click', e => {
+            that.map.fitBounds(e.sourceTarget._bounds, {maxZoom: 12});
+          });
+        }
+      }
+    }).addTo(this.map);
   }
 
-  getGitterFromVariables(mobIdentifier, zentIdentifier): any{
-    if (mobIdentifier === 'pkw' && zentIdentifier === 'ober'){
-      return this.pkwOber.layer;
+    private calcSingleScore(ideal: number, max: number, actual: number): number{
+      if (actual <= ideal){
+        return 1;
+      }
+      if (actual >= max){
+        return 0;
+      }
+      const diff = max - ideal;
+      if (diff === 0){
+        return actual > ideal ? 0 : 1;
+      }
+      const scoreInverted = (actual - ideal) / diff;
+      const scoreInvertedRounded = Math.round((scoreInverted + Number.EPSILON) * 100) / 100;
+      return 1 - scoreInvertedRounded;
+
     }
-    if (mobIdentifier === 'pkw' && zentIdentifier === 'mittel'){
-      return this.pkwMittel.layer;
-    }
-    if (mobIdentifier === 'pkw' && zentIdentifier === 'grund'){
-      return this.pkwGrund.layer;
-    }
-    if (mobIdentifier === 'opnv' && zentIdentifier === 'ober'){
-      return this.opnvOber.layer;
-    }
-    if (mobIdentifier === 'opnv' && zentIdentifier === 'mittel'){
-      return this.opnvMittel.layer;
-    }
-    if (mobIdentifier === 'opnv' && zentIdentifier === 'grund'){
-      return this.opnvGrund.layer;
-    }
-    if (mobIdentifier === 'fr' && zentIdentifier === 'ober'){
-      return this.frOber.layer;
-    }
-    if (mobIdentifier === 'fr' && zentIdentifier === 'mittel'){
-      return this.frMittel.layer;
-    }
-    if (mobIdentifier === 'fr' && zentIdentifier === 'grund'){
-      return this.frGrund.layer;
-    }
-    else{
-      return null;
-    }
-  }
 
   resetScore(): void {
     const gemLayers = this.gemeindenLayer._layers;

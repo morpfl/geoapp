@@ -83,37 +83,86 @@
           </mat-tab>
           <mat-tab label = "Analyse">
             <h3 mat-h3>Score-Berechnung - Prototype</h3>
-            <h4 mat-h4>1. Minimal- und Maximalzeiten</h4>
+            <h4 mat-h4>1. Gewichtung der Mobilitätsarten</h4>
             <form [formGroup] = "ampFG">
-              <mat-form-field>
-                <input matInput type="text" formControlName="pkwMin" placeholder="PKW - minimale Zeit">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="text" formControlName="pkwMax" placeholder="PKW - maximale Zeit">
-              </mat-form-field>
-              <br>
-              <mat-form-field>
-                <input matInput type="text" formControlName="opnvMin" placeholder="ÖPNV - minimale Zeit">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="text" formControlName="opnvMax" placeholder="ÖPNV - maximale Zeit">
-              </mat-form-field>
-              <br>
-              <mat-form-field>
-                <input matInput type="text" formControlName="bikeMin" placeholder="Fahrrad - minimale Zeit">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="text" formControlName="bikeMax" placeholder="Fahrrad - maximale Zeit">
-              </mat-form-field>
+              <p>PKW:</p>
+              <mat-slider formControlName="pkwWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="0" max="100"></mat-slider>
+              <p>ÖPNV:</p>
+              <mat-slider formControlName="opnvWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="0" max="100"></mat-slider>
+              <p>Fahrrad:</p>
+              <mat-slider formControlName="bikeWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="0" max="100"></mat-slider>
               <br>
               <div *ngIf="scoreCounter === 1">
-                <h4 mat-h4>2. Gewichtung der Mobilitätsarten</h4>
-                <p>PKW:</p>
-                <mat-slider formControlName="pkwWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
-                <p>ÖPNV:</p>
-                <mat-slider formControlName="opnvWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
-                <p>Fahrrad:</p>
-                <mat-slider formControlName="bikeWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100"></mat-slider>
+              <h4 mat-h4>2. Minimal- und Maximalzeiten</h4>
+                <div *ngIf="ampFG.controls.pkwWeight.value > 0">
+                  <p><b>PKW</b></p>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMinOber" placeholder="Oberzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMaxOber" placeholder="Oberzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMinMittel" placeholder="Mittelzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMaxMittel" placeholder="Mittelzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="pkwMaxGrund" placeholder="Grundzentrum - maximale Zeit">
+                  </mat-form-field>
+                </div>
+                <div *ngIf="ampFG.controls.opnvWeight.value > 0">
+                  <p><b>ÖPNV</b></p>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMinOber" placeholder="Oberzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMaxOber" placeholder="Oberzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMinMittel" placeholder="Mittelzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMaxMittel" placeholder="Mittelzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="opnvMaxGrund" placeholder="Grundzentrum - maximale Zeit">
+                  </mat-form-field>
+                </div>
+                <div *ngIf="ampFG.controls.bikeWeight.value > 0">
+                  <p><b>ÖPNV</b></p>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMinOber" placeholder="Oberzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMaxOber" placeholder="Oberzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMinMittel" placeholder="Mittelzentrum - ideale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMaxMittel" placeholder="Mittelzentrum - maximale Zeit">
+                  </mat-form-field>
+                  <br>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                  </mat-form-field>
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="bikeMaxGrund" placeholder="Grundzentrum - maximale Zeit">
+                  </mat-form-field>
+                </div>
                 <br>
               </div>
               <button *ngIf="scoreCounter < 1" mat-flat-button color="primary" (click)="next()">Weiter</button>

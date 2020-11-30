@@ -40,10 +40,8 @@ export class AppComponent implements OnInit {
   layerList: CustLayer[] = [this.pkwGrund, this.pkwMittel, this.pkwOber,
     this.opnvGrund, this.opnvMittel, this.opnvOber,
     this.frGrund, this.frMittel, this.frOber];
-  maxTime = 1800;
   // FormGroups
   ampFG: FormGroup;
-  maxTimeFG: FormGroup;
   scoreCounter = 0;
 
 
@@ -73,10 +71,6 @@ export class AppComponent implements OnInit {
       pointToLayer(feature, latlng): L.CircleMarker{
         return new L.CircleMarker(latlng, grundzentrumMarker);
       },
-    });
-
-    this.maxTimeFG = new FormGroup({
-      maxTime: new FormControl(this.maxTime / 60, Validators.required),
     });
 
     this.ampFG = new FormGroup({
@@ -169,7 +163,6 @@ export class AppComponent implements OnInit {
     });
     counter = 0;
     for (let i = min + interval; i <= max + interval; i = i + interval){
-      console.log(i);
       counter++;
       for (const singleLayer of layersAsList){
         if (singleLayer.feature.properties.MZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
@@ -213,100 +206,203 @@ export class AppComponent implements OnInit {
   }
 
   precalculateOpnvRasters(): void {
-    const maxTime = this.maxTime / 60;
+    let times = [];
+    let min;
+    let max;
+    let interval;
+    let between;
+    let layers;
+    let layersAsList;
+    let counter;
+
     this.opnvOber.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.OZ_OEPNV <= maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.OZ_OEPNV);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.opnvOber.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.OZ_OEPNV < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.opnvOber.legend = calcLegend(min, max, interval);
+
+    times = [];
     this.opnvMittel.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.MZ_OEPNV <= maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.MZ_OEPNV);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.opnvMittel.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.MZ_OEPNV < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
-    this.opnvGrund.layer= L.Proj.geoJson(raster, {
+    }
+    this.opnvMittel.legend = calcLegend(min, max, interval);
+
+    times = [];
+    this.opnvGrund.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.GZ_OEPNV <= maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.GZ_OEPNV);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.opnvGrund.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.GZ_OEPNV < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.opnvGrund.legend = calcLegend(min, max, interval);
   }
 
   precalculateBikeRasters(): void {
+    let times = [];
+    let min;
+    let max;
+    let interval;
+    let between;
+    let layers;
+    let layersAsList;
+    let counter;
+
     this.frOber.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.OZ_Bike_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.OZ_Bike_Zeit);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.frOber.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.OZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.frOber.legend = calcLegend(min, max, interval);
+
+    times = [];
     this.frMittel.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.MZ_Bike_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.MZ_Bike_Zeit);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.frMittel.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.MZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.frMittel.legend = calcLegend(min, max, interval);
+
+    times = [];
     this.frGrund.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.GZ_Bike_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.GZ_Bike_Zeit);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.frGrund.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.GZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.frGrund.legend = calcLegend(min, max, interval);
   }
 
   toggleOberzentrenLayer(checked: boolean): void{
@@ -349,9 +445,11 @@ export class AppComponent implements OnInit {
     this.opnvOber.isActivated = !this.opnvOber.isActivated;
     if (this.opnvOber.isActivated){
       this.map.addLayer(this.opnvOber.layer);
+      this.opnvOber.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.opnvOber.layer);
+      this.opnvOber.legend.remove();
     }
   }
 
@@ -359,9 +457,11 @@ export class AppComponent implements OnInit {
     this.opnvMittel.isActivated = !this.opnvMittel.isActivated;
     if (this.opnvMittel.isActivated){
       this.map.addLayer(this.opnvMittel.layer);
+      this.opnvMittel.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.opnvMittel.layer);
+      this.opnvMittel.legend.remove();
     }
   }
 
@@ -369,9 +469,11 @@ export class AppComponent implements OnInit {
     this.opnvGrund.isActivated = !this.opnvGrund.isActivated;
     if (this.opnvGrund.isActivated){
       this.map.addLayer(this.opnvGrund.layer);
+      this.opnvGrund.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.opnvGrund.layer);
+      this.opnvGrund.legend.remove();
     }
   }
 
@@ -415,9 +517,11 @@ export class AppComponent implements OnInit {
     this.frOber.isActivated = !this.frOber.isActivated;
     if (this.frOber.isActivated) {
       this.map.addLayer(this.frOber.layer);
+      this.frOber.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.frOber.layer);
+      this.frOber.legend.remove();
     }
   }
 
@@ -425,9 +529,11 @@ export class AppComponent implements OnInit {
     this.frMittel.isActivated = !this.frMittel.isActivated;
     if (this.frMittel.isActivated) {
       this.map.addLayer(this.frMittel.layer);
+      this.frMittel.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.frMittel.layer);
+      this.frMittel.legend.remove();
     }
   }
 
@@ -435,35 +541,13 @@ export class AppComponent implements OnInit {
     this.frGrund.isActivated = !this.frGrund.isActivated;
     if (this.frGrund.isActivated) {
       this.map.addLayer(this.frGrund.layer);
+      this.frGrund.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.frGrund.layer);
+      this.frGrund.legend.remove();
     }
   }
-
-  setMaxTime(): void {
-    if (!this.maxTimeFG.valid){
-      return;
-    }
-    this.maxTime = this.maxTimeFG.controls.maxTime.value * 60;
-    this.resetScore();
-    let indexOfActivatedLayer = -1;
-    for (const layerWrapper of this.layerList){
-      if (layerWrapper.isActivated){
-        indexOfActivatedLayer = this.layerList.indexOf(layerWrapper);
-      }
-      layerWrapper.isActivated = false;
-    }
-    this.resetLayers();
-    this.precalculateBikeRasters();
-    this.precalculateOpnvRasters();
-    this.precalculatePkwRasters();
-    if (indexOfActivatedLayer !== -1) {
-      this.layerList[indexOfActivatedLayer].isActivated = true;
-      this.map.addLayer(this.layerList[indexOfActivatedLayer].layer);
-    }
-  }
-
 
   calculateScore(): void{
 

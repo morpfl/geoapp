@@ -6,17 +6,6 @@
     left:30px;
 }
 
-#legend{
-  padding-left:10px;
-  background-color: white;
-  bottom:30px;
-  position:absolute;
-  left:30px;
-  height:35%;
-  width:20vw;
-  z-index:1000;
-}
-
 #filter-wrapper{
     display: flex;
     z-index:1000;
@@ -35,19 +24,6 @@
     background-color:white;
     border: 1px solid black;
     overflow-y:scroll;
-}
-
-.legend-wrapper{
-  display:flex;
-  width:28vw;
-  height:100%;
-  flex-direction:column;
-  justify-content:space-between;
-}
-
-.legend {
-  background-color:white;
-  height:33%;
 }
 
 #map {

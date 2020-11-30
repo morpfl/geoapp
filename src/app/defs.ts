@@ -30,6 +30,7 @@ export const grundzentrumMarker = {
 export class CustLayer {
   layer: any;
   isActivated: boolean;
+  legend: any;
   public CustLayer(): CustLayer {
     this.layer = null;
     this.isActivated = false;

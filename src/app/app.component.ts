@@ -1,5 +1,5 @@
 import { raster } from './data/Gitter_500_gesamt';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SystemJsNgModuleLoader } from '@angular/core';
 import * as L from 'leaflet';
 import 'proj4leaflet';
 import { oberzentren } from './data/oberzentren';
@@ -9,6 +9,7 @@ import { gemeinden } from './data/gemeinden';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund } from './defs';
+import { getColor, calcLegend } from './legend.util';
 
 
 
@@ -55,9 +56,6 @@ export class AppComponent implements OnInit {
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
           const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
           layer.bindPopup(textToDisplay);
-          layer.on('click', e => {
-            that.map.fitBounds(e.sourceTarget._bounds, {maxZoom: 12});
-          });
         }
       }
     }).addTo(this.map);
@@ -111,52 +109,107 @@ export class AppComponent implements OnInit {
 
   }
 
+
+
   precalculatePkwRasters(): void {
+    let times;
+    let min;
+    let max;
+    let interval;
+    let between;
+    let layers;
+    let layersAsList;
+    let counter;
+
+    times = [];
     this.pkwOber.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.OZ_Pkw_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.OZ_Pkw_Zeit);
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.pkwOber.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.OZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.pkwOber.legend = calcLegend(min, max, interval);
+    times = [];
     this.pkwMittel.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.MZ_Pkw_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+       times.push(feature.properties.MZ_Pkw_Zeit);
+       feature.properties.checked = false;
+       const textToDisplay = 'Zeit in Minuten: ' + feature.properties.MZ_Pkw_Zeit;
+       layer.bindPopup(textToDisplay);
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.pkwMittel.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      console.log(i);
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.MZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.pkwMittel.legend = calcLegend(min, max, interval);
+    times = [];
     this.pkwGrund.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
-        feature.properties.erreichbarkeitStandard = feature.properties.GZ_Pkw_Zeit <= this.maxTime;
-        if (feature.properties.erreichbarkeitStandard) {
-          layer.setStyle({
-            color: 'green'
-          });
-        }
-        else{
-          layer.setStyle({
-            color: 'red'
+        times.push(feature.properties.GZ_Pkw_Zeit);
+        feature.properties.checked = false;
+      }
+    });
+    min = Math.min.apply(null, times);
+    max = Math.max.apply(null, times);
+    between = max - min;
+    interval = Math.round(between / 5);
+    layers = this.pkwGrund.layer._layers;
+    layersAsList = Object.keys(layers).map(index => {
+      const layer = layers[index];
+      return layer;
+    });
+    counter = 0;
+    for (let i = min + interval; i <= max + interval; i = i + interval){
+      counter++;
+      for (const singleLayer of layersAsList){
+        if (singleLayer.feature.properties.GZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
+          singleLayer.feature.properties.checked = true;
+          singleLayer.setStyle({
+            color: getColor(counter),
           });
         }
       }
-    });
+    }
+    this.pkwGrund.legend = calcLegend(min, max, interval);
   }
 
   precalculateOpnvRasters(): void {
@@ -326,9 +379,11 @@ export class AppComponent implements OnInit {
     this.pkwOber.isActivated = !this.pkwOber.isActivated;
     if (this.pkwOber.isActivated) {
       this.map.addLayer(this.pkwOber.layer);
+      this.pkwOber.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.pkwOber.layer);
+      this.pkwOber.legend.remove();
     }
   }
 
@@ -336,9 +391,11 @@ export class AppComponent implements OnInit {
     this.pkwMittel.isActivated = !this.pkwMittel.isActivated;
     if (this.pkwMittel.isActivated) {
       this.map.addLayer(this.pkwMittel.layer);
+      this.pkwMittel.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.pkwMittel.layer);
+      this.pkwMittel.legend.remove();
     }
   }
 
@@ -346,9 +403,11 @@ export class AppComponent implements OnInit {
     this.pkwGrund.isActivated = !this.pkwGrund.isActivated;
     if (this.pkwGrund.isActivated) {
       this.map.addLayer(this.pkwGrund.layer);
+      this.pkwGrund.legend.addTo(this.map);
     }
     else{
       this.map.removeLayer(this.pkwGrund.layer);
+      this.pkwGrund.legend.remove();
     }
   }
 
@@ -488,9 +547,6 @@ export class AppComponent implements OnInit {
           const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic + ' |'
           + ' Score: ' + feature.properties.score + '/' + maxScore;
           layer.bindPopup(textToDisplay);
-          layer.on('click', e => {
-            that.map.fitBounds(e.sourceTarget._bounds, {maxZoom: 12});
-          });
         }
       }
     }).addTo(this.map);

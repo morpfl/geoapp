@@ -8,7 +8,7 @@ import { mittelzentren } from './data/mittelzentren';
 import { gemeinden } from './data/gemeinden';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund } from './defs';
+import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund, GemeindeScorePair } from './defs';
 import { getColor, calcLegend } from './legend.util';
 
 
@@ -43,6 +43,8 @@ export class AppComponent implements OnInit {
   // FormGroups
   ampFG: FormGroup;
   scoreCounter = 0;
+  gemeindeScoreData: GemeindeScorePair[];
+  displayedColumns: string[] = ['gemeinde', 'score'];
 
 
   ngOnInit(): void{
@@ -102,8 +104,6 @@ export class AppComponent implements OnInit {
     this.precalculateBikeRasters();
 
   }
-
-
 
   precalculatePkwRasters(): void {
     let times;
@@ -576,6 +576,7 @@ export class AppComponent implements OnInit {
     if (!this.ampFG.valid){
       return;
     }
+    this.gemeindeScoreData = [];
     const gemLayers = this.gemeindenLayer._layers;
     const gemsAsList = Object.keys(gemLayers).map(index => {
       const gem = gemLayers[index];
@@ -644,7 +645,9 @@ export class AppComponent implements OnInit {
           });
         }
         const percentage = Math.round(feature.properties.score / maxScore * 100);
-
+        const name = feature.properties.geog_name;
+        const keyValuePair: GemeindeScorePair = {name, score: percentage};
+        this.gemeindeScoreData.push(keyValuePair);
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
           const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic + ' |'
           + ' Score: ' + percentage + ' / 100';
@@ -652,6 +655,19 @@ export class AppComponent implements OnInit {
         }
       }
     }).addTo(this.map);
+    this.gemeindeScoreData.sort((d1, d2) => {
+      if (d1.score > d2.score){
+        return -1;
+      }
+
+      if (d1.score < d2.score){
+        return 1;
+      }
+
+      if (d1.score === d2.score){
+        return 0;
+      }
+    });
   }
 
     private calcSingleScore(ideal: number, max: number, actual: number): number{

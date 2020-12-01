@@ -38,6 +38,11 @@ export class CustLayer {
   }
 }
 
+export class GemeindeScorePair {
+  name: any;
+  score: number;
+}
+
 export const pkwDefaultOber = 60;
 export const pkwDefaultMittel = 30;
 export const pkwDefaultGrund = 20;

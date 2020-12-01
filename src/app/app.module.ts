@@ -14,12 +14,14 @@ import {MatInputModule} from '@angular/material/input';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatIconModule} from '@angular/material/icon';
+import {MatTableModule} from '@angular/material/table';
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+    MatTableModule,
     MatRadioModule,
     ReactiveFormsModule,
     MatButtonModule,

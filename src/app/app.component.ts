@@ -119,6 +119,9 @@ export class AppComponent implements OnInit {
     this.pkwOber.layer = L.Proj.geoJson(raster, {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.OZ_Pkw_Zeit);
+        feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.OZ_Pkw_Zeit);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -148,7 +151,7 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
        times.push(feature.properties.MZ_Pkw_Zeit);
        feature.properties.checked = false;
-       const textToDisplay = 'Zeit in Minuten: ' + feature.properties.MZ_Pkw_Zeit;
+       const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.MZ_Pkw_Zeit);
        layer.bindPopup(textToDisplay);
       }
     });
@@ -179,6 +182,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_Pkw_Zeit);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_Pkw_Zeit);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -219,6 +224,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.OZ_OEPNV);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.OZ_OEPNV);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -249,6 +256,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.MZ_OEPNV);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.MZ_OEPNV);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -279,6 +288,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_OEPNV);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -319,6 +330,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.OZ_Bike_Zeit);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.OZ_Bike_Zeit);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -349,6 +362,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.MZ_Bike_Zeit);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.MZ_Bike_Zeit);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -379,6 +394,8 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_Bike_Zeit);
         feature.properties.checked = false;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_Bike_Zeit);
+        layer.bindPopup(textToDisplay);
       }
     });
     min = Math.min.apply(null, times);
@@ -626,10 +643,11 @@ export class AppComponent implements OnInit {
             color: 'red'
           });
         }
+        const percentage = Math.round(feature.properties.score / maxScore * 100);
 
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
           const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic + ' |'
-          + ' Score: ' + feature.properties.score + '/' + maxScore;
+          + ' Score: ' + percentage + ' / 100';
           layer.bindPopup(textToDisplay);
         }
       }

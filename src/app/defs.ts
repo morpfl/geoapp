@@ -12,19 +12,19 @@ export const crs = new L.Proj.CRS('EPSG:25833',
 export const oberzentrumMarker = {
     radius: 20,
     fillOpacity: 0.85,
-    color: 'orange'
+    color: '#704700'
 };
 
 export const mittelzentrumMarker = {
     radius: 10,
     fillOpacity: 0.85,
-    color: 'orange'
+    color: '#704700'
 };
 
 export const grundzentrumMarker = {
     radius: 5,
     fillOpacity: 0.85,
-    color: 'orange'
+    color: '#704700'
 };
 
 export class CustLayer {

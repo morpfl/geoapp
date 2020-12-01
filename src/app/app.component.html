@@ -49,6 +49,9 @@
                 <mat-panel-title>
                   Zentrale Orte
                 </mat-panel-title>
+                <mat-panel-description>
+                  Anzeige der zentralen Orte
+                </mat-panel-description>
               </mat-expansion-panel-header>
               <mat-checkbox (change) = "toggleOberzentrenLayer($event.checked)">Oberzentren</mat-checkbox><br>
               <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
@@ -139,8 +142,8 @@
                 </div>
                 <br>
               </div>
-              <button *ngIf="scoreCounter < 1" mat-flat-button color="primary" (click)="next()">Weiter</button>
-              <button *ngIf="scoreCounter === 1" mat-flat-button color="primary" (click)="calculateScore()">Score berechnen</button>
+              <button class="margin" *ngIf="scoreCounter < 1" mat-flat-button color="primary" (click)="next()">Weiter</button>
+              <button class="margin" *ngIf="scoreCounter === 1" mat-flat-button color="primary" (click)="calculateScore()">Score berechnen</button>
             </form>
           </mat-tab>
           <mat-tab label="Erklärung">

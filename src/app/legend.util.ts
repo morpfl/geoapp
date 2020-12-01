@@ -5,6 +5,8 @@ export function calcLegend(min: number, max: number, interval: number): any{
   legend.setPosition('bottomleft');
   legend.onAdd = (map: any): HTMLElement => {
       const div: HTMLElement = L.DomUtil.create('div', 'info legend');
+      div.innerHTML += '<h3>Legende</h3>';
+      div.innerHTML += '<h4>Fahrzeit in Minuten</h4>';
       div.style.padding = '6px 8px';
       div.style.font = '14px/16px Arial, Helvetica, sans-serif';
       div.style.background = 'rgba(255,255,255,0.8)';

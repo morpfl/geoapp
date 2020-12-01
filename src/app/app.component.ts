@@ -432,15 +432,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  toggleGemeindenLayer(checked: boolean): void{
-    if (checked) {
-      this.map.addLayer(this.gemeindenLayer);
-    }
-    else{
-      this.map.removeLayer(this.gemeindenLayer);
-    }
-  }
-
   toggleOpnvOber(): void{
     this.opnvOber.isActivated = !this.opnvOber.isActivated;
     if (this.opnvOber.isActivated){

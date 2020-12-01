@@ -44,15 +44,7 @@
                   <mat-checkbox [checked] = "frGrund.isActivated" (change) = "toggleFrGrund()">Grundzentrum</mat-checkbox><br>
                 </mat-expansion-panel>
               </mat-expansion-panel>
-            <mat-expansion-panel hideToggle [expanded] = "true">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  Verwaltungsgrenzen
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <mat-checkbox checked = "true" (change) = "toggleGemeindenLayer($event.checked)">Gemeindegrenzen</mat-checkbox><br>
-            </mat-expansion-panel>
-            <mat-expansion-panel hideToggle [expanded] = "true">
+              <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Zentrale Orte
@@ -62,15 +54,6 @@
               <mat-checkbox (change) = "toggleMittelzentrenLayer($event.checked)">Mittelzentren</mat-checkbox><br>
               <mat-checkbox (change) = "toggleGrundzentrenLayer($event.checked)">Grundzentren</mat-checkbox><br>
             </mat-expansion-panel>
-            <mat-expansion-panel hideToggle>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  Weitere
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p>This is the primary content of the panel</p>
-            </mat-expansion-panel>
-            <br>
           </mat-tab>
           <mat-tab label = "Analyse">
             <h3 mat-h3>Score-Berechnung</h3>

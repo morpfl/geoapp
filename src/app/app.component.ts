@@ -433,6 +433,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleOpnvOber(): void{
+    this.resetLayers(this.opnvOber);
     this.opnvOber.isActivated = !this.opnvOber.isActivated;
     if (this.opnvOber.isActivated){
       this.map.addLayer(this.opnvOber.layer);
@@ -445,6 +446,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleOpnvMittel(): void {
+    this.resetLayers(this.opnvMittel);
     this.opnvMittel.isActivated = !this.opnvMittel.isActivated;
     if (this.opnvMittel.isActivated){
       this.map.addLayer(this.opnvMittel.layer);
@@ -457,6 +459,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleOpnvGrund(): void {
+    this.resetLayers(this.opnvGrund);
     this.opnvGrund.isActivated = !this.opnvGrund.isActivated;
     if (this.opnvGrund.isActivated){
       this.map.addLayer(this.opnvGrund.layer);
@@ -469,6 +472,7 @@ export class AppComponent implements OnInit {
   }
 
   togglePkwOber(): void {
+    this.resetLayers(this.pkwOber);
     this.pkwOber.isActivated = !this.pkwOber.isActivated;
     if (this.pkwOber.isActivated) {
       this.map.addLayer(this.pkwOber.layer);
@@ -481,6 +485,7 @@ export class AppComponent implements OnInit {
   }
 
   togglePkwMittel(): void {
+    this.resetLayers(this.pkwMittel);
     this.pkwMittel.isActivated = !this.pkwMittel.isActivated;
     if (this.pkwMittel.isActivated) {
       this.map.addLayer(this.pkwMittel.layer);
@@ -493,6 +498,7 @@ export class AppComponent implements OnInit {
   }
 
   togglePkwGrund(): void {
+    this.resetLayers(this.pkwGrund);
     this.pkwGrund.isActivated = !this.pkwGrund.isActivated;
     if (this.pkwGrund.isActivated) {
       this.map.addLayer(this.pkwGrund.layer);
@@ -505,6 +511,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleFrOber(): void {
+    this.resetLayers(this.frOber);
     this.frOber.isActivated = !this.frOber.isActivated;
     if (this.frOber.isActivated) {
       this.map.addLayer(this.frOber.layer);
@@ -517,6 +524,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleFrMittel(): void {
+    this.resetLayers(this.frMittel);
     this.frMittel.isActivated = !this.frMittel.isActivated;
     if (this.frMittel.isActivated) {
       this.map.addLayer(this.frMittel.layer);
@@ -529,6 +537,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleFrGrund(): void {
+    this.resetLayers(this.frGrund);
     this.frGrund.isActivated = !this.frGrund.isActivated;
     if (this.frGrund.isActivated) {
       this.map.addLayer(this.frGrund.layer);
@@ -657,16 +666,15 @@ export class AppComponent implements OnInit {
     }
   }
 
-  resetLayers(): void {
-    this.map.removeLayer(this.frGrund.layer);
-    this.map.removeLayer(this.frMittel.layer);
-    this.map.removeLayer(this.frOber.layer);
-    this.map.removeLayer(this.pkwGrund.layer);
-    this.map.removeLayer(this.pkwMittel.layer);
-    this.map.removeLayer(this.pkwOber.layer);
-    this.map.removeLayer(this.opnvGrund.layer);
-    this.map.removeLayer(this.opnvMittel.layer);
-    this.map.removeLayer(this.opnvOber.layer);
+  resetLayers(currentLayer: CustLayer): void {
+    for (const layer of this.layerList){
+      if (layer === currentLayer){
+        continue;
+      }
+      layer.isActivated = false;
+      layer.legend.remove();
+      this.map.removeLayer(layer.layer);
+    }
   }
 
   formatLabel(value: number): number {

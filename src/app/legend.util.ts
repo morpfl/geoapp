@@ -31,7 +31,7 @@ export function calcLegend(min: number, max: number, interval: number): any{
 
 export function getColor(counter: number): string{
   if (counter === 1){
-    return '#58FA58';
+    return '#31B404';
   }
   if (counter === 2){
     return '#9AFE2E';

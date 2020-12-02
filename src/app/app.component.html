@@ -157,18 +157,22 @@
             <p>Die untere Grenze bestimmt prozentual, wieviele Gitterzellen (bewohnte Gebiete) einer Gemeinde eine ausreichende Erreichbarkeit aufweisen müssen, damit die Gemeinde den Ampel-Score 'orange' erhält.</p>
           </mat-tab>
           <mat-tab label="Tabelle">
-            <table *ngIf="gemeindeScoreData" mat-table [dataSource]="gemeindeScoreData" class="mat-elevation-z8">
-              <ng-container matColumnDef="gemeinde">
-                <th mat-header-cell *matHeaderCellDef>Gemeinde</th>
-                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-              </ng-container>
-              <ng-container matColumnDef="score">
-                <th mat-header-cell *matHeaderCellDef>Score</th>
-                <td mat-cell *matCellDef="let element"> {{element.score}} </td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+            <div *ngIf="gemeindeScoreData">
+              <button class="download-button" color="primary" mat-flat-button (click)="exporter.exportTable('csv')">Download als CSV</button>
+              <br>
+              <table mat-table matTableExporter #exporter="matTableExporter" [dataSource]="gemeindeScoreData" class="mat-elevation-z8">
+                <ng-container matColumnDef="gemeinde">
+                  <th mat-header-cell *matHeaderCellDef>Gemeinde</th>
+                  <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                </ng-container>
+                <ng-container matColumnDef="score">
+                  <th mat-header-cell *matHeaderCellDef>Score</th>
+                  <td mat-cell *matCellDef="let element"> {{element.score}} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+            </div>
           </mat-tab>
         </mat-tab-group>
       </div>

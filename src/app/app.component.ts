@@ -698,6 +698,11 @@ export class AppComponent implements OnInit {
         color: '#3388ff'
       });
     }
+    this.scoreCounter = 0;
+    this.gemeindeScoreData = null;
+    this.ampFG.controls.pkwWeight.setValue(0);
+    this.ampFG.controls.bikeWeight.setValue(0);
+    this.ampFG.controls.opnvWeight.setValue(0);
   }
 
   resetLayers(currentLayer: CustLayer): void {

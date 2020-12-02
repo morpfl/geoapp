@@ -60,6 +60,7 @@
           </mat-tab>
           <mat-tab label = "Analyse">
             <h3 mat-h3>Score-Berechnung</h3>
+            <button *ngIf="gemeindeScoreData" mat-flat-button color="primary" (click) = "resetScore()">Score zurücksetzen</button>
             <h4 mat-h4>1. Gewichtung der Mobilitätsarten</h4>
             <form [formGroup] = "ampFG">
               <p>PKW:</p>

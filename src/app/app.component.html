@@ -71,6 +71,7 @@
               <br>
               <div *ngIf="scoreCounter === 1">
               <h4 mat-h4>2. Minimal- und Maximalzeiten</h4>
+                <button mat-flat-button (click)="resetValues()" color="primary">Werte zurücksetzen</button>
                 <div *ngIf="ampFG.controls.pkwWeight.value > 0">
                   <p><b>PKW</b></p>
                   <mat-form-field>

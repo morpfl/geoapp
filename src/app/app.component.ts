@@ -711,6 +711,27 @@ export class AppComponent implements OnInit {
     }
   }
 
+  resetValues(): void{
+    this.ampFG.controls.pkwMinOber.setValue(pkwDefaultOber);
+    this.ampFG.controls.pkwMaxOber.setValue(pkwDefaultOber);
+    this.ampFG.controls.pkwMinMittel.setValue(pkwDefaultMittel);
+    this.ampFG.controls.pkwMaxMittel.setValue(pkwDefaultMittel);
+    this.ampFG.controls.pkwMinGrund.setValue(pkwDefaultGrund);
+    this.ampFG.controls.pkwMaxGrund.setValue(pkwDefaultGrund);
+    this.ampFG.controls.opnvMinOber.setValue(opnvDefaultOber);
+    this.ampFG.controls.opnvMaxOber.setValue(opnvDefaultOber);
+    this.ampFG.controls.opnvMinMittel.setValue(opnvDefaultMittel);
+    this.ampFG.controls.opnvMaxMittel.setValue(opnvDefaultMittel);
+    this.ampFG.controls.opnvMinGrund.setValue(opnvDefaultGrund);
+    this.ampFG.controls.opnvMaxGrund.setValue(opnvDefaultGrund);
+    this.ampFG.controls.bikeMinOber.setValue(bikeDefaultOber);
+    this.ampFG.controls.bikeMaxOber.setValue(bikeDefaultOber);
+    this.ampFG.controls.bikeMinMittel.setValue(bikeDefaultMittel);
+    this.ampFG.controls.bikeMaxMittel.setValue(bikeDefaultMittel);
+    this.ampFG.controls.bikeMinGrund.setValue(bikeDefaultGrund);
+    this.ampFG.controls.bikeMaxGrund.setValue(bikeDefaultGrund);
+  }
+
   formatLabel(value: number): number {
     return value;
   }

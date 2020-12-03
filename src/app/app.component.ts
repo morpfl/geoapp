@@ -9,7 +9,8 @@ import { gemeinden } from './data/gemeinden';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund, GemeindeScorePair } from './defs';
-import { getColor, calcLegend } from './legend.util';
+import { getColor, calcLegend, calcScoreLegend } from './legend.util';
+import { MatDialog } from '@angular/material/dialog';
 
 
 
@@ -19,6 +20,9 @@ import { getColor, calcLegend } from './legend.util';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+
+  constructor(public dialog: MatDialog){}
+
   title = 'geo-app';
   CM_ATTR = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
   wmsVEBaseUrl = 'https://geodienste.sachsen.de/wms_geosn_verwaltungseinheiten/guest?';
@@ -48,6 +52,7 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit(): void{
+    const dialogRef = this.dialog.open(AppDialogComponent);
     this.map = L.map('map').setView([50.8970, 14.0662], 10);
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: this.CM_ATTR}).addTo(this.map);
     const that = this;
@@ -567,12 +572,13 @@ export class AppComponent implements OnInit {
   }
 
   calculateScore(): void{
-
     //ideal 20, maximal 30, actual: 25
     //30 - 20 = 10
     //25 - 20 = 5
     // 1 - 5/10 = 0.5
-
+    if (this.gemeindenLayer.legend){
+      this.gemeindenLayer.legend.remove();
+    }
     if (!this.ampFG.valid){
       return;
     }
@@ -655,6 +661,10 @@ export class AppComponent implements OnInit {
         }
       }
     }).addTo(this.map);
+    this.gemeindenLayer.legend = calcScoreLegend();
+    if (this.gemeindenLayer){
+      this.gemeindenLayer.legend.addTo(this.map);
+    }
     this.gemeindeScoreData.sort((d1, d2) => {
       if (d1.score > d2.score){
         return -1;
@@ -697,8 +707,10 @@ export class AppComponent implements OnInit {
       gemeinde.setStyle({
         color: '#3388ff'
       });
+      gemeinde._popup._content = gemeinde.feature.properties.geog_name + ': ' + gemeinde.feature.properties.raumbezeic;
     }
     this.scoreCounter = 0;
+    this.gemeindenLayer.legend.remove();
     this.gemeindeScoreData = null;
     this.ampFG.controls.pkwWeight.setValue(0);
     this.ampFG.controls.bikeWeight.setValue(0);
@@ -744,5 +756,15 @@ export class AppComponent implements OnInit {
   next(): void{
     this.scoreCounter++;
   }
+
+  openDialog(): void {
+
+  }
 }
+
+@Component({
+  selector: 'app-root-dialog',
+  templateUrl: 'app.component.dialog.html',
+})
+export class AppDialogComponent {}
 

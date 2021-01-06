@@ -2,6 +2,9 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.0.
 
+## About
+This web application is the result of an university project in the module geoinformation services. It allows several reachability analyses for the German County 'Sächsische Schweiz - Osterzegebirge'. You can visualize the duration to reach near places with different levels of provisioning. Additionally you can calculate a score for different types of transport and export it as a ranking.
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.

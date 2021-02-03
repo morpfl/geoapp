@@ -59,7 +59,10 @@ export class AppComponent implements OnInit {
     this.gemeindenLayer = L.Proj.geoJson(gemeinden, {
       onEachFeature: (feature: any, layer: any) => {
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
-          const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
+          const difRel = feature.properties.Dif_rel.toString().replace('.', ',');
+          const textToDisplay = '<b>' + feature.properties.geog_name + '</b><br>' + feature.properties.raumbezeic + '<br>'
+          + 'Einwohnerzahl 2020: ' + feature.properties.EZ_20 + '<br>' + 'Prognose 2030: ' + feature.properties.EZ_30 + '<br>'
+          + 'relative Differenz: ' + difRel + '%';
           layer.bindPopup(textToDisplay);
         }
       }

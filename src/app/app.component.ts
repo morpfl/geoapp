@@ -296,7 +296,7 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_OEPNV);
         feature.properties.checked = false;
-        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV);
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV) + feature.properties.ID_Raster;
         layer.bindPopup(textToDisplay);
       }
     });
@@ -318,6 +318,12 @@ export class AppComponent implements OnInit {
           singleLayer.setStyle({
             color: getColor(counter),
           });
+          if (singleLayer.feature.properties.ID_Raster === 944 || singleLayer.feature.properties.ID_Raster === 970 
+            || singleLayer.feature.properties.ID_Raster === 722){
+            singleLayer.setStyle({
+              color: 'red',
+            });
+          }
         }
       }
     }

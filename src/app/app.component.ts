@@ -296,7 +296,7 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_OEPNV);
         feature.properties.checked = false;
-        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV) + feature.properties.ID_Raster;
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV);
         layer.bindPopup(textToDisplay);
       }
     });

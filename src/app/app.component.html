@@ -7,10 +7,10 @@
             <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <h4>Erreichbarkeitslayer<mat-icon matTooltip="Die Anordnung der Gitterzellen orientiert sich an der des Zensus-Gitters.
+                  <h4>Erreichbarkeitslayer <mat-icon matTooltip="Die Anordnung der Gitterzellen orientiert sich an der des Zensus-Gitters.
                     Die ausgewählten Zellen beschränken sich auf ausreichend bevölkerte Gebiete.
                     Die Erreichbarkeiten wurden vom jeweiligen Mittelpunkt der Gitterzelle zu den zentralen Orten berechnet.
-                    Für die Fahrzeiten des motorisierten Individualverkehrs und des Fahrrads wurde der Open Route Service zur Berechnung genutzt.
+                    Für die Fahrzeiten des motorisierten Individualverkehrs wurde der Open Route Service zur Berechnung genutzt.
                     Für den ÖPNV wurde zur Ermittlung der Fahrtzeiten die API des VVO genutzt.">info</mat-icon></h4>
                 </mat-panel-title>
               </mat-expansion-panel-header>
@@ -48,7 +48,7 @@
               <mat-expansion-panel hideToggle [expanded] = "true">
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <h4>Zentrale Orte<mat-icon matTooltip="Das Zentrale-Orte-System basiert auf einer hierarchischen Struktur
+                  <h4>Zentrale Orte <mat-icon matTooltip="Das Zentrale-Orte-System basiert auf einer hierarchischen Struktur
                     in der ausgewählte Städte entsprechend ihrer Einordnung bestimmte Funktionen
                     der Daseinsvorsorge übernehmen.
                     Die Einteilung in Sachsen beinhaltet drei Arten von Zentren :
@@ -63,23 +63,21 @@
             </mat-expansion-panel>
           </mat-tab>
           <mat-tab label = "Score">
-            <h3 mat-h3>Score-Berechnung<mat-icon matTooltip="Das Ziel der Score-Berechnung ist, die verschiedenen Gemeinden nach
-              ihrer Erreichbarkeit der zentralen Orte zu vergleichen, wobei gilt:
-              je höher der Score desto besser werden die Erreichbarkeiten eingeschätzt.
+            <h3 mat-h3>Score-Berechnung <mat-icon matTooltip="Das Ziel der Score-Berechnung ist die Schaffung eines Vergleichskriteriums
+              für Gemeinden entsprechend ihrer Erreichbarkeit zu zentralen Orten.
+              Je höher der Score ist, desto besser werden die Erreichbarkeiten eingeschätzt.
               Die Berechnung erfolgt auf Basis der Fahrzeiten der Gitterzellen,
               die zu der jeweiligen Gemeinde gehören.
               Dazu wird zuerst mittels Gewichtung entschieden, wie stark die
               verschiedenen Mobilitätsarten (ÖPNV, motorisierter Individualverkehr, Fahrrad)
-              in die Bewertung einfließen sollen. Anschließend werden Zeitintervalle,
-              die nach Meinung des Nutzers als akzeptabel angesehen werden, definiert.
-              Aus diesen wird dann ein Score pro Zelle berechnet.
+              in die Bewertung einfließen sollen. Anschließend können Zeitintervalle definiert werden
+              aus diesen dann ein Score pro Zelle berechnet wird.
               Durch Mittelung werden die Zell-Scores dann auf die Gemeindeebene übertragen.
-              Es gibt vorerst keine Möglichkeit, Zentrenarten innerhalb einer Mobilitätsart unterschiedlich zu gewichten.
-              Das bedeutet, dass sich die Score-Berechnung bspw. nicht nur auf die Erreichbarkeiten zu Oberzentren (indem alle anderen das Gewicht 0 erhalten) stützen kann.">info</mat-icon></h3>
+              Es gibt vorerst keine Möglichkeit, Zentrenarten innerhalb einer Mobilitätsart unterschiedlich zu gewichten.">info</mat-icon></h3>
             <button *ngIf="gemeindeScoreData" mat-flat-button color="primary" (click) = "resetScore()">Score zurücksetzen</button>
-            <h4 mat-h4>1. Gewichtung der Mobilitätsarten<mat-icon matTooltip="Bei der Gewichtung hat der Nutzer die Möglichkeit mit Zahlen von 0-100 zu bestimmen
-              wie welche Mobilitätstyp in die Score- Berechnung eingehen soll. Dabei werden die Gewichte,
-              insofern sie einen Wert von über 0 haben, gegeneinander verrechnet und normalisiert.
+            <h4 mat-h4>1. Gewichtung der Mobilitätsarten <mat-icon matTooltip="Hier können den Mobilitätsarten Werte zwischen von 0-100 zugewiesen werden.
+              Diese Werte stellen Gewichtungen dar, wie stark die jeweilige Mobilitätsart in die Score-Berechnung einfließt. Dabei werden die Gewichte,
+              die einen Wert von über 0 haben, gegeneinander verrechnet und normalisiert.
               Beispiel: Pkw : 40, ÖPNV: 40, Fahrrad: 0 --> Sowohl Pkw als auch ÖPNV gehen mit gleichen Gewichtung, in dem Fall also 0.5 und Fahrrad mit 0 ein.">info</mat-icon></h4>
             <form [formGroup] = "ampFG">
               <p>PKW:</p>
@@ -90,15 +88,8 @@
               <mat-slider formControlName="bikeWeight" color="primary" thumbLabel [displayWith]="formatLabel" tickInterval="1" min="0" max="100"></mat-slider>
               <br>
               <div *ngIf="scoreCounter === 1">
-              <h4 mat-h4>2. Minimal- und Maximalzeiten<mat-icon matTooltip="Ausgehend von der eben getätigten Gewichtung, gibt es nun die Möglichkeit akzeptable
-                Fahrzeiten zu den Kombinationen aus Mobilitätsart und Zentrumskategorie festzulegen.
-                Daraus ergibt sich, dass wenn einer Mobiltätsart ein Gewicht von Null zugewiesen wird, keine Fahrzeiteingabe angezeigt wird,
-                da diese Mobilitätsart nicht mit in die Score-Berechnung aufgenommen wird.
-                Als Minimalzeit wird die Zeit bezeichnet, die als idealzeit angesehen wird.
-                Zellen mit dieser oder einer kürzeren Zeit wird der Score 1 gegeben.
-                Unter einer Maximalzeit wird die Fahrzeit verstanden, die gerade noch akzeptabel ist.
-                Fahrzeiten schlechter bzw. höher als dieser, wird ein Score von 0 zugewiesen.
-                Innerhalb dieses Intervalls wird der Score linear interpoliert.Die voreingestellte Zeit orientiert sich an den Vorgaben der Richtlinie für integrierte Netzgestaltung. (RIN 2008)">info</mat-icon></h4>
+              <h4 mat-h4>2. Minimal- und Maximalzeiten <mat-icon matTooltip="Ausgehend von der eben getätigten Gewichtung, gibt es nun die Möglichkeit akzeptable
+                Fahrzeiten zu den Kombinationen aus Mobilitätsart und Zentrumskategorie festzulegen.">info</mat-icon></h4>
                 <button mat-flat-button (click)="resetValues()" color="primary">Werte zurücksetzen</button>
                 <div *ngIf="ampFG.controls.pkwWeight.value > 0">
                   <p><b>PKW</b></p>
@@ -117,7 +108,7 @@
                   </mat-form-field>
                   <br>
                   <mat-form-field>
-                    <input matInput type="text" formControlName="pkwMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                    <input matInput type="text" formControlName="pkwMinGrund" placeholder="Grundzentrum - ideale Zeit">
                   </mat-form-field>
                   <mat-form-field>
                     <input matInput type="text" formControlName="pkwMaxGrund" placeholder="Grundzentrum - maximale Zeit">
@@ -140,14 +131,14 @@
                   </mat-form-field>
                   <br>
                   <mat-form-field>
-                    <input matInput type="text" formControlName="opnvMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                    <input matInput type="text" formControlName="opnvMinGrund" placeholder="Grundzentrum - ideale Zeit">
                   </mat-form-field>
                   <mat-form-field>
                     <input matInput type="text" formControlName="opnvMaxGrund" placeholder="Grundzentrum - maximale Zeit">
                   </mat-form-field>
                 </div>
                 <div *ngIf="ampFG.controls.bikeWeight.value > 0">
-                  <p><b>ÖPNV</b></p>
+                  <p><b>Fahrrad</b></p>
                   <mat-form-field>
                     <input matInput type="text" formControlName="bikeMinOber" placeholder="Oberzentrum - ideale Zeit">
                   </mat-form-field>
@@ -163,7 +154,7 @@
                   </mat-form-field>
                   <br>
                   <mat-form-field>
-                    <input matInput type="text" formControlName="bikeMinGrund" placeholder="Grundzentrum - minimale Zeit">
+                    <input matInput type="text" formControlName="bikeMinGrund" placeholder="Grundzentrum - ideale Zeit">
                   </mat-form-field>
                   <mat-form-field>
                     <input matInput type="text" formControlName="bikeMaxGrund" placeholder="Grundzentrum - maximale Zeit">

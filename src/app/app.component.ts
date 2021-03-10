@@ -59,7 +59,10 @@ export class AppComponent implements OnInit {
     this.gemeindenLayer = L.Proj.geoJson(gemeinden, {
       onEachFeature: (feature: any, layer: any) => {
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
-          const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic;
+          const difRel = feature.properties.Dif_rel.toString().replace('.', ',');
+          const textToDisplay = '<b>' + feature.properties.geog_name + '</b><br>' + feature.properties.raumbezeic + '<br>'
+          + 'Einwohnerzahl 2020: ' + feature.properties.EZ_20 + '<br>' + 'Prognose 2030: ' + feature.properties.EZ_30 + '<br>'
+          + 'relative Differenz: ' + difRel + '%';
           layer.bindPopup(textToDisplay);
         }
       }
@@ -293,7 +296,7 @@ export class AppComponent implements OnInit {
       onEachFeature: (feature: any, layer: any) => {
         times.push(feature.properties.GZ_OEPNV);
         feature.properties.checked = false;
-        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV);
+        const textToDisplay = 'Fahrzeit in Minuten: ' + Math.round(feature.properties.GZ_OEPNV) + feature.properties.ID_Raster;
         layer.bindPopup(textToDisplay);
       }
     });
@@ -315,6 +318,12 @@ export class AppComponent implements OnInit {
           singleLayer.setStyle({
             color: getMapColor(singleLayer.feature.properties.GZ_OEPNV),
           });
+          if (singleLayer.feature.properties.ID_Raster === 944 || singleLayer.feature.properties.ID_Raster === 970 
+            || singleLayer.feature.properties.ID_Raster === 722){
+            singleLayer.setStyle({
+              color: 'red',
+            });
+          }
         }
       }
     }
@@ -655,7 +664,10 @@ export class AppComponent implements OnInit {
         const keyValuePair: GemeindeScorePair = {name, score: percentage};
         this.gemeindeScoreData.push(keyValuePair);
         if (feature.properties && feature.properties.raumbezeic && feature.properties.geog_name){
-          const textToDisplay = feature.properties.geog_name + ': ' + feature.properties.raumbezeic + ' |'
+          const difRel = feature.properties.Dif_rel.toString().replace('.', ',');
+          const textToDisplay = '<b>' + feature.properties.geog_name + '</b><br>' + feature.properties.raumbezeic + '<br>'
+          + 'Einwohnerzahl 2020: ' + feature.properties.EZ_20 + '<br>' + 'Prognose 2030: ' + feature.properties.EZ_30 + '<br>'
+          + 'relative Differenz: ' + difRel + '%' + '<br>'
           + ' Score: ' + percentage + ' / 100';
           layer.bindPopup(textToDisplay);
         }
@@ -704,10 +716,13 @@ export class AppComponent implements OnInit {
       return gem;
     });
     for (const gemeinde of gemsAsList){
+      const difRel = gemeinde.feature.properties.Dif_rel.toString().replace('.', ',');
+      gemeinde._popup._content = '<b>' + gemeinde.feature.properties.geog_name + '</b><br>' + gemeinde.feature.properties.raumbezeic + '<br>'
+      + 'Einwohnerzahl 2020: ' + gemeinde.feature.properties.EZ_20 + '<br>' + 'Prognose 2030: ' + gemeinde.feature.properties.EZ_30 + '<br>'
+      + 'relative Differenz: ' + difRel + '%' + '<br>';
       gemeinde.setStyle({
         color: '#3388ff'
       });
-      gemeinde._popup._content = gemeinde.feature.properties.geog_name + ': ' + gemeinde.feature.properties.raumbezeic;
     }
     this.scoreCounter = 0;
     this.gemeindenLayer.legend.remove();

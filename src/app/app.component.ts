@@ -9,7 +9,7 @@ import { gemeinden } from './data/gemeinden';
 import 'proj4';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { mittelzentrumMarker, oberzentrumMarker, grundzentrumMarker, CustLayer, pkwDefaultOber, opnvDefaultOber, pkwDefaultMittel, pkwDefaultGrund, opnvDefaultMittel, opnvDefaultGrund, bikeDefaultOber, bikeDefaultMittel, bikeDefaultGrund, GemeindeScorePair } from './defs';
-import { getColor, calcLegend, calcScoreLegend } from './legend.util';
+import { calcLegend, calcScoreLegend, getMapColor } from './legend.util';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -148,7 +148,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.OZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.OZ_Pkw_Zeit),
           });
         }
       }
@@ -179,7 +179,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.MZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.MZ_Pkw_Zeit),
           });
         }
       }
@@ -210,7 +210,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.GZ_Pkw_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.GZ_Pkw_Zeit),
           });
         }
       }
@@ -252,7 +252,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.OZ_OEPNV < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.OZ_OEPNV),
           });
         }
       }
@@ -284,7 +284,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.MZ_OEPNV < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.MZ_OEPNV),
           });
         }
       }
@@ -316,7 +316,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.GZ_OEPNV < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.GZ_OEPNV),
           });
           if (singleLayer.feature.properties.ID_Raster === 944 || singleLayer.feature.properties.ID_Raster === 970 
             || singleLayer.feature.properties.ID_Raster === 722){
@@ -364,7 +364,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.OZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.OZ_Bike_Zeit),
           });
         }
       }
@@ -396,7 +396,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.MZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.MZ_Bike_Zeit),
           });
         }
       }
@@ -428,7 +428,7 @@ export class AppComponent implements OnInit {
         if (singleLayer.feature.properties.GZ_Bike_Zeit < i && !singleLayer.feature.properties.checked){
           singleLayer.feature.properties.checked = true;
           singleLayer.setStyle({
-            color: getColor(counter),
+            color: getMapColor(singleLayer.feature.properties.GZ_Bike_Zeit),
           });
         }
       }
